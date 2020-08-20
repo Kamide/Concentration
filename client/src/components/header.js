@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import socket from './socket';
+import Clipboard from './clipboard';
 
 export default class Header extends Component {
   constructor(props) {
@@ -8,11 +9,9 @@ export default class Header extends Component {
     this.state = {
       id: 'Not Available',
       name: '',
-      copyToClipboardMessageTimer: null,
-      setNameMessageTimer: null
+      setNameMessageTimer: 0
     };
 
-    this.copyToClipboard = this.copyToClipboard.bind(this);
     this.setName = this.setName.bind(this);
   }
 
@@ -29,17 +28,6 @@ export default class Header extends Component {
     });
   }
 
-  copyToClipboard() {
-    navigator.clipboard.writeText(this.state.id);
-    clearTimeout(this.state.copyToClipboardMessageTimer);
-
-    this.setState({
-      copyToClipboardMessageTimer: setTimeout(() => {
-        this.setState({ copyToClipboardMessageTimer: null });
-      }, 1500)
-    });
-  }
-
   setName(event) {
     event.preventDefault();
 
@@ -51,7 +39,7 @@ export default class Header extends Component {
       this.setState({
         name: event.target.name.value,
         setNameMessageTimer: setTimeout(() => {
-          this.setState({ setNameMessageTimer: null });
+          this.setState({ setNameMessageTimer: 0 });
         }, 1500)
       });
     }
@@ -72,9 +60,7 @@ export default class Header extends Component {
           <h2>Player Information</h2>
           <p>
             <span>ID=<code>{this.state.id}</code></span>
-            <button onClick={this.copyToClipboard}>Copy to Clipboard</button>
-            {this.state.copyToClipboardMessageTimer != null
-              && <span>Copied!</span>}
+            <Clipboard text={this.state.id} />
           </p>
           <form onSubmit={this.setName}>
             <label>
@@ -82,8 +68,7 @@ export default class Header extends Component {
               <input type="text" id="name" defaultValue={this.state.name} />
             </label>
             <input type="submit" value="Change" />
-            {this.state.setNameMessageTimer != null
-              && <span>Changed!</span>}
+            {this.state.setNameMessageTimer > 0 && <span>Changed!</span>}
           </form>
         </div>
       </header>

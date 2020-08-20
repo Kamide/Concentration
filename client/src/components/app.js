@@ -10,12 +10,10 @@ export default class App extends Component {
     return (
       <BrowserRouter>
         <Header />
-        <main>
-          <Switch>
-            <Route path='/' exact component={Main} />
-            <Route path='/game' component={Game} />
-          </Switch>
-        </main>
+        <Switch>
+          <Route path='/' exact component={Main} />
+          <Route path='/game' component={Game} />
+        </Switch>
       </BrowserRouter>
     );
   }
