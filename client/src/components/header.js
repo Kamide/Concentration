@@ -9,10 +9,10 @@ export default class Header extends Component {
     this.state = {
       id: 'Not Available',
       name: '',
-      setNameMessageTimer: 0
+      timer: 0
     };
 
-    this.setName = this.setName.bind(this);
+    this.setPlayerName = this.setPlayerName.bind(this);
   }
 
   componentDidMount() {
@@ -20,26 +20,26 @@ export default class Header extends Component {
       let state = { id: socket.id };
 
       if (localStorage.getItem('name')) {
-        socket.emit('setName', localStorage.getItem('name'));
-        state['name'] = localStorage.getItem('name');
+        socket.emit('setPlayerName', localStorage.getItem('name'));
+        state.name = localStorage.getItem('name');
       }
 
       this.setState(state);
     });
   }
 
-  setName(event) {
+  setPlayerName(event) {
     event.preventDefault();
 
-    if (this.state.name != event.target.name.value) {
-      socket.emit('setName', event.target.name.value);
-      localStorage.setItem('name', event.target.name.value);
-      clearTimeout(this.state.setNameMessageTimer);
+    if (this.state.name != event.target.playerName.value) {
+      socket.emit('setPlayerName', event.target.playerName.value);
+      localStorage.setItem('name', event.target.playerName.value);
+      clearTimeout(this.state.timer);
 
       this.setState({
-        name: event.target.name.value,
-        setNameMessageTimer: setTimeout(() => {
-          this.setState({ setNameMessageTimer: 0 });
+        name: event.target.playerName.value,
+        timer: setTimeout(() => {
+          this.setState({ timer: 0 });
         }, 1500)
       });
     }
@@ -52,23 +52,26 @@ export default class Header extends Component {
           <h1><Link to='/'>Concentration</Link></h1>
           <nav>
             <ul>
-              <li><Link to='/game'>Game</Link></li>
+              <li><Link to='/lobby'>Lobby</Link></li>
+              <li><Link to='/room'>Create a Room</Link></li>
             </ul>
           </nav>
         </div>
         <div>
-          <h2>Player Information</h2>
-          <p>
-            <span>ID=<code>{this.state.id}</code></span>
+          <h2>My Info</h2>
+          <div>
+            <span>ID=<code>{this.state.id}</code></span>{' '}
             <Clipboard text={this.state.id} />
-          </p>
-          <form onSubmit={this.setName}>
-            <label>
-              <span>Name</span>
-              <input type="text" id="name" defaultValue={this.state.name} />
-            </label>
-            <input type="submit" value="Change" />
-            {this.state.setNameMessageTimer > 0 && <span>Changed!</span>}
+          </div>
+          <form onSubmit={this.setPlayerName}>
+            <div>
+              <label htmlFor="playerName">Name</label>{' '}
+              <input type="text" id="playerName" defaultValue={this.state.name} />
+            </div>
+            <div>
+              <input type="submit" value="Change" />{' '}
+              {this.state.timer > 0 && <span>Changed!</span>}
+            </div>
           </form>
         </div>
       </header>
