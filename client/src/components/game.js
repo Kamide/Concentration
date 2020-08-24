@@ -23,17 +23,9 @@ export default class Game extends Component {
   componentDidMount() {
     socket.emit('requestJoinGame', this.state.manager, this.state.timestamp);
 
-    socket.on('joinGame', (permit) => {
-      if (permit) {
-        socket.on('gameInfo', (info) => {
-          if (info) {
-            this.setState(info);
-            socket.off('gameInfo');
-          }
-          else {
-            this.setState({ redirect: true });
-          }
-        });
+    socket.on('joinGame', (info) => {
+      if (info) {
+        this.setState(info);
       }
       else {
         this.setState({ redirect: true });

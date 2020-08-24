@@ -46,8 +46,15 @@ module.exports = class Game {
     return this.players.map((player) => { return player.info; });
   }
 
-  add(player) {
-    if (this.playing || this.count >= this.limit) {
+  playerIndex(player) {
+    return this.players.findIndex((candidate) => {
+      return candidate.id == player.id;
+    });
+  }
+
+  add(player, timestamp) {
+    if (this.timestamp != timestamp || (this.count < 1 && this.manager != player)
+      || this.count >= this.limit || this.playerIndex(player) > -1 || this.playing) {
       return null;
     }
 
@@ -63,9 +70,7 @@ module.exports = class Game {
   }
 
   delete(player) {
-    let index = this.players.findIndex((candidate) => {
-      return candidate.id == player.id;
-    });
+    let index = this.playerIndex(player);
 
     if (index > -1) {
       delete this.hands[player.id];

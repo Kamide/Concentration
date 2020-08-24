@@ -33,13 +33,16 @@ function leaveGame(socket) {
     player.emit('playerLeft', socket.id);
     deleteGame(socket);
   }
-  else {
+  else if (player.manager) {
     let game = games[player.manager];
 
     if (game) {
       game.delete(player);
       devlog(`Player ${player} left ${game}.`);
     }
+  }
+  else {
+    deleteGame(socket);
   }
 
   player.leave();
@@ -67,15 +70,10 @@ io.on('connection', (socket) => {
 
   socket.on('requestJoinGame', (manager, timestamp) => {
     let game = games[manager];
-    let permit = game && game.timestamp == timestamp
-      && (game.count > 0 || game.manager == socket.id)
-      && !(socket in game);
+    let info = game && game.add(player, timestamp);
+    io.to(socket.id).emit('joinGame', info);
 
-    io.to(socket.id).emit('joinGame', permit);
-
-    if (permit) {
-      let info = game.add(player);
-      io.to(socket.id).emit('gameInfo', info);
+    if (info) {
       devlog(`Player ${player} joined ${game}.`);
     }
   });
