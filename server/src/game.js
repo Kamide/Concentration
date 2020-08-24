@@ -53,7 +53,7 @@ module.exports = class Game {
   }
 
   add(player, timestamp) {
-    if (this.timestamp != timestamp || (this.count < 1 && this.manager != player)
+    if (this.timestamp != timestamp || (this.count < 1 && this.manager != player.id)
       || this.count >= this.limit || this.playerIndex(player) > -1 || this.playing) {
       return null;
     }
