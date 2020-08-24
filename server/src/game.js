@@ -78,7 +78,7 @@ module.exports = class Game {
       player.emit('playerLeft', player.id);
     }
 
-    return this.players.length;
+    return this.count;
   }
 
   start() {
