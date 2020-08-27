@@ -14,6 +14,7 @@ const server = app.listen(port, () => {
 });
 
 const io = SocketIO(server, { cookie: false });
+const LOBBY = 'lobby';
 let players = {};
 let games = {};
 
@@ -22,6 +23,7 @@ function deleteGame(socket) {
 
   if (game) {
     delete games[socket.id];
+    io.to(LOBBY).emit('lobbyDeleteGame', game.id);
     devlog(`Game   ${game} deleted.`);
   }
 }
@@ -38,6 +40,7 @@ function leaveGame(socket) {
 
     if (game) {
       game.delete(player);
+      io.to(LOBBY).emit('lobbyPlayerLeftGame', game.id);
       devlog(`Player ${player} left ${game}.`);
     }
   }
@@ -58,13 +61,14 @@ io.on('connection', (socket) => {
     devlog(`Player ${player} changed their name.`);
   });
 
-  socket.on('newGame', ({title, limit, pairs}) => {
+  socket.on('newGame', ({title, pairs, limit}) => {
     deleteGame(socket);
     let timestamp = Date.now();
-    let game = new Game(socket.id, timestamp, title, limit, pairs);
+    let game = new Game(socket.id, timestamp, title, pairs, limit);
 
     games[socket.id] = game;
     io.to(socket.id).emit('newGameRedirect', timestamp);
+    io.to(LOBBY).emit('lobbyNewGame', game.publicInfo);
     devlog(`Game   ${game} created.`);
   });
 
@@ -74,12 +78,26 @@ io.on('connection', (socket) => {
     io.to(socket.id).emit('joinGame', info);
 
     if (info) {
+      io.to(LOBBY).emit('lobbyPlayerJoinedGame', game.id);
       devlog(`Player ${player} joined ${game}.`);
     }
   });
 
   socket.on('leaveGame', () => {
     leaveGame(socket);
+  });
+
+  socket.on('joinLobby', () => {
+    io.to(socket.id).emit('gameList',
+      Object.values(games)
+        .filter(game => !game.playing)
+        .map(game => game.publicInfo));
+
+    socket.join(LOBBY);
+  });
+
+  socket.on('leaveLobby', () => {
+    socket.leave(LOBBY);
   });
 
   socket.on('disconnect', () => {

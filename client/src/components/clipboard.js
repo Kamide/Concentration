@@ -23,10 +23,10 @@ export default class Clipboard extends Component {
 
   render() {
     return (
-      <div>
+      <span>
         <button onClick={this.copy}>Copy to Clipboard</button>{' '}
         {this.state.timer > 0 && <span>Copied!</span>}
-      </div>
+      </span>
     );
   }
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import socket from './socket';
 import Clipboard from './clipboard';
+import { Id } from './snippets';
 
 export default class Header extends Component {
   constructor(props) {
@@ -60,7 +61,7 @@ export default class Header extends Component {
         <div>
           <h2>My Info</h2>
           <div>
-            <span>ID=<code>{this.state.id}</code></span>{' '}
+            <span><Id id={this.state.id} /></span>{' '}
             <Clipboard text={this.state.id} />
           </div>
           <form onSubmit={this.setPlayerName}>

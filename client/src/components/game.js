@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Redirect, BrowserRouter } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import socket from './socket';
+import Clipboard from './clipboard';
+import { Fraction, Id } from './snippets';
 
 export default class Game extends Component {
   constructor(props) {
@@ -9,8 +11,8 @@ export default class Game extends Component {
       manager: this.props.match.params.manager,
       timestamp: this.props.match.params.timestamp,
       title: 'Not Available',
-      limit: 0,
       pairs: 0,
+      limit: 0,
       players: [],
       redirect: ''
     };
@@ -25,6 +27,7 @@ export default class Game extends Component {
 
     socket.on('joinGame', (info) => {
       if (info) {
+        delete info.count;
         this.setState(info);
       }
       else {
@@ -71,17 +74,20 @@ export default class Game extends Component {
 
     return (
       <main>
-        <header>
-          <h1>{this.state.title}</h1>
-          <p><span>ID=</span><code>{this.id}</code></p>
-          <p><span>Player Limit:</span> <span>{this.state.limit}</span></p>
-          <p><span>Distinct Card Pairs:</span> <span>{this.state.pairs}</span></p>
-        </header>
+        <h1>Waiting Room</h1>
         <div>
-          <h2>Players</h2>
+          <h2>{this.state.title}</h2>
+          <p><Id id={this.id} /> <Clipboard text={this.id} /></p>
+        </div>
+        <p><span>Distinct Card Pairs:</span> <span>{this.state.pairs}</span></p>
+        <div>
+          <h2>
+            <span>Players:</span>{' '}
+            <Fraction numerator={this.state.players.length} denominator={this.state.limit} />
+          </h2>
           <ul>
             {this.state.players.map((player) => {
-              let id = <span><span>ID=</span><code>{player.id}</code></span>;
+              let id = <Id id={player.id} />;
 
               return (
                 <li key={player.id}>

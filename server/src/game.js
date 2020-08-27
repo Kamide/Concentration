@@ -18,18 +18,18 @@ function shuffle(cards) {
 }
 
 module.exports = class Game {
-  constructor(manager, timestamp, title, limit, pairs) {
+  constructor(manager, timestamp, title, pairs, limit) {
     this.manager = manager;
     this.timestamp = timestamp;
     this.title = title;
 
-    this.limit = limit;
-    this.players = [];
-    this.hands = {};
-
     this.pairs = pairs;
     this.deck = [];
     this.seed = '';
+
+    this.limit = limit;
+    this.players = [];
+    this.hands = {};
 
     this.playing = false;
   }
@@ -44,6 +44,14 @@ module.exports = class Game {
 
   get playerInfo() {
     return this.players.map((player) => { return player.info; });
+  }
+
+  get publicInfo() {
+    return {
+      id: this.id, title: this.title,
+      pairs: this.pairs,
+      limit: this.limit, count: this.count,
+    };
   }
 
   playerIndex(player) {
@@ -64,7 +72,7 @@ module.exports = class Game {
     player.emit('playerJoined', player.info);
 
     return {
-      title: this.title, limit: this.limit, pairs: this.pairs,
+      ...this.publicInfo,
       players: this.playerInfo
     };
   }

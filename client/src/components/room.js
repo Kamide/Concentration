@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import { inputRequired, positiveIntegerRange } from './validators';
-import ErrorList from './errorlist';
 import socket from './socket';
+import ErrorList from './errorlist';
+import { inputRequired, positiveIntegerRange } from './validators';
 
 export default class Room extends Component {
   constructor(props) {
@@ -21,20 +21,6 @@ export default class Room extends Component {
           validators: [inputRequired],
           errors: []
         },
-        limit: {
-          args: {
-            type: 'number',
-            id: 'gameLimit',
-            defaultValue: 4,
-            required: true,
-            min: 1,
-            max: 4
-          },
-          label: 'Player Limit',
-          filters: [],
-          validators: [positiveIntegerRange],
-          errors: []
-        },
         pairs: {
           args: {
             type: 'number',
@@ -45,6 +31,20 @@ export default class Room extends Component {
             max: 52
           },
           label: 'Distinct Card Pairs',
+          filters: [],
+          validators: [positiveIntegerRange],
+          errors: []
+        },
+        limit: {
+          args: {
+            type: 'number',
+            id: 'gameLimit',
+            defaultValue: 4,
+            required: true,
+            min: 1,
+            max: 4
+          },
+          label: 'Player Limit',
           filters: [],
           validators: [positiveIntegerRange],
           errors: []

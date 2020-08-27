@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import App from './components/app'
 
 ReactDOM.render(
-  <React.StrictMode>
+  <StrictMode>
     <App />
-  </React.StrictMode>,
+  </StrictMode>,
   document.getElementById('root')
 );
