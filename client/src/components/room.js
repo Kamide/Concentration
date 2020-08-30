@@ -56,14 +56,13 @@ export default class Room extends Component {
     this.newRoom = this.newRoom.bind(this);
   }
 
-  newRoom(event) {
-    event.preventDefault();
+  validate(valueFn) {
     let formHasErrors = false;
     let values = {};
 
     Object.entries(this.state.fields).forEach(([key, field]) => {
       let errors = [];
-      let value = event.target[field.args.id].value;
+      let value = valueFn({key, field});
 
       field.filters.forEach((filter) => {
         value = filter(value);
@@ -94,13 +93,26 @@ export default class Room extends Component {
       });
     });
 
+    return { formHasErrors: formHasErrors, values: values };
+  }
+
+  newRoom(event) {
+    event.preventDefault();
+    let {formHasErrors, values} = this.validate(({field}) => event.target[field.args.id].value);
+
     if (formHasErrors) {
       return;
     }
 
     socket.emit('newGame', values);
     socket.on('newGameRedirect', (timestamp) => {
-      this.setState({ redirect: socket.id + '/' + timestamp });
+      if (timestamp != null) {
+        this.setState({ redirect: socket.id + '/' + timestamp });
+      }
+      else {
+        this.validate(({key}) => values[key]);
+      }
+
       socket.off('newGameRedirect');
     });
   }
