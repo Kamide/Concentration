@@ -60,6 +60,11 @@ io.on('connection', (socket) => {
   socket.on('setPlayerName', (name) => {
     name = String(name);
     player.name = name;
+
+    if (player.game) {
+      io.to(player.game).emit('playerNameChanged', socket.id, name);
+    }
+
     devlog(`Player ${player} changed their name.`);
   });
 

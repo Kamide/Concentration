@@ -22,6 +22,23 @@ export default class Game extends Component {
     return this.state.manager + '/' + this.state.timestamp;
   }
 
+  updatePlayer(prevState, player, key, value) {
+    let index = prevState.players.findIndex((candidate) => {
+      return candidate.id == player;
+    });
+
+    return {
+      players: [
+        ...prevState.players.slice(0, index),
+        {
+          ...prevState.players[index],
+          [key]: value
+        },
+        ...prevState.players.slice(index + 1)
+      ]
+    };
+  }
+
   componentDidMount() {
     socket.emit('requestJoinGame', this.state.manager, this.state.timestamp);
 
@@ -59,11 +76,18 @@ export default class Game extends Component {
         });
       }
     });
+
+    socket.on('playerNameChanged', (player, name) => {
+      this.setState((prevState) => {
+        return this.updatePlayer(prevState, player, 'name', name);
+      });
+    });
   }
 
   componentWillUnmount() {
     socket.off('playerJoined');
     socket.off('playerLeft');
+    socket.off('playerNameChanged');
     socket.emit('leaveGame');
   }
 

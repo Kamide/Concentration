@@ -27,12 +27,16 @@ module.exports = class Player {
   }
 
   leave() {
-    this.socket.leave(this.game);
-    this.game = '';
+    if (this.game) {
+      this.socket.leave(this.game);
+      this.game = '';
+    }
   }
 
   emit(event, args) {
-    this.socket.to(this.game).emit(event, args);
+    if (this.game) {
+      this.socket.to(this.game).emit(event, args);
+    }
   }
 
   toString() {
