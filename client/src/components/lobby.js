@@ -68,6 +68,7 @@ export default class Lobby extends Component {
   }
 
   componentWillUnmount() {
+    socket.off('gameList');
     socket.off('lobbyNewGame');
     socket.off('lobbyDeleteGame');
     socket.off('lobbyPlayerJoinedGame');

@@ -33,9 +33,9 @@ module.exports = class Player {
     }
   }
 
-  emit(event, args) {
+  emit(event, ...args) {
     if (this.game) {
-      this.socket.to(this.game).emit(event, args);
+      this.socket.to(this.game).emit(event, ...args);
     }
   }
 

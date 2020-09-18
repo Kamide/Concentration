@@ -117,6 +117,40 @@ io.on('connection', (socket) => {
     socket.leave(LOBBY);
   });
 
+  socket.on('toggleReady', () => {
+    if (!player.game) {
+      return;
+    }
+
+    let game = games[player.manager];
+
+    if (player.isAManager) {
+      let seed = game.start();
+
+      if (!seed) {
+        return;
+      }
+
+      io.to(game.id).emit('gameStart', seed);
+    }
+    else {
+      if (game) {
+        game.toggleReady(player)
+        io.to(game.id).emit('readyToggled', player.id);
+      }
+    }
+  });
+
+  socket.on('flipCard', (deckIndex) => {
+    if (!player.game) {
+      return;
+    }
+
+    deckIndex = parseInt(deckIndex);
+    let game = games[player.manager];
+    io.to(game.id).emit('flipCardResult', game.flip(player, deckIndex));
+  });
+
   socket.on('disconnect', () => {
     leaveGame(socket);
     delete players[socket.id];
