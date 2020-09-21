@@ -36,7 +36,7 @@ module.exports = class Game {
 
     this.playing = false;
     this.deckShown = [];
-    this.turn = -1;
+    this.turnIndex = -1;
     this.flipsLeft = 2;
     this.prevDeckIndex = -1;
   }
@@ -59,6 +59,10 @@ module.exports = class Game {
       pairs: this.pairs,
       limit: this.limit, count: this.count,
     };
+  }
+
+  get turn() {
+    return this.players[this.turnIndex];
   }
 
   playerIndex(player) {
@@ -98,7 +102,9 @@ module.exports = class Game {
     if (index > -1) {
       delete this.stats[player.id];
       this.players.splice(index, 1)[0];
-      player.emit('playerLeft', player.id);
+      this.decrementTurnIndex();
+      this.incrementTurnIndex();
+      player.emit('playerLeft', player.id, this.turn.id);
     }
 
     return this.count;
@@ -131,13 +137,13 @@ module.exports = class Game {
 
     shuffle(this.deck);
     this.playing = true;
-    this.turn = 0;
+    this.turnIndex = 0;
 
     return this.seed;
   }
 
   flip(player, deckIndex) {
-    if (player == this.players[this.turn] && deckIndex >= 0 && deckIndex < this.deck.length) {
+    if (player == this.turn && deckIndex >= 0 && deckIndex < this.deck.length) {
       if (this.prevDeckIndex == deckIndex || this.deckShown[deckIndex] > -1) {
         return null;
       }
@@ -154,7 +160,7 @@ module.exports = class Game {
           status = 'flush';
         }
 
-        this.turn = (this.turn + 1) % this.count;
+        this.incrementTurnIndex();
         this.flipsLeft = 2;
         this.prevDeckIndex = -1;
       }
@@ -165,12 +171,20 @@ module.exports = class Game {
       return {
         deckIndex: deckIndex,
         card: this.deck[deckIndex],
-        turn: this.turn,
+        turn: this.turn.id,
         status: status
       };
     }
 
     return null;
+  }
+
+  incrementTurnIndex() {
+    this.turnIndex = (this.turnIndex + 1) % this.count;
+  }
+
+  decrementTurnIndex() {
+    this.turnIndex = (this.turnIndex - 1 + this.count) % this.count;
   }
 
   toString() {

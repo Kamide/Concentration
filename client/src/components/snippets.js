@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 
 export function Fraction(props) {
   return (
@@ -15,6 +15,18 @@ export function Id(props) {
     <span>
       <span>ID=</span>
       <code>{props.id}</code>
+    </span>
+  );
+}
+
+export function Player(props) {
+  let id = <Id id={props.id} />;
+
+  return (
+    <span>
+      {props.name
+        && <Fragment><span>{props.name}</span> ({id})</Fragment>
+        || id}
     </span>
   );
 }

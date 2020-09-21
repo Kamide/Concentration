@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import socket from './socket';
 import Clipboard from './clipboard';
-import { Fraction, Id } from './snippets';
+import { Fraction, Id, Player } from './snippets';
 import './styles/game.css'
 
 export default class Game extends Component {
@@ -21,7 +21,7 @@ export default class Game extends Component {
       seed: '',
       images: [],
       playing: false,
-      turn: -1,
+      turn: '',
       prevCard: {},
       flush: false,
       redirect: ''
@@ -40,14 +40,23 @@ export default class Game extends Component {
     return this.state.manager == socket.id;
   }
 
-  playerName(player) {
-    return player.name || player.id;
+  get isMyTurn() {
+    return this.state.turn == socket.id;
   }
 
-  updatePlayer(prevState, player, key, value) {
-    let index = prevState.players.findIndex((candidate) => {
-      return candidate.id == player;
+  playerIndex(state, playerId) {
+    return state.players.findIndex((candidate) => {
+      return candidate.id == playerId;
     });
+  }
+
+  playerName(playerId) {
+    let index = this.playerIndex(this.state, playerId);
+    return index > -1 ? this.state.players[index].name : playerId;
+  }
+
+  updatePlayer(prevState, playerId, key, value) {
+    let index = this.playerIndex(prevState, playerId)
 
     return {
       players: [
@@ -133,17 +142,23 @@ export default class Game extends Component {
       });
     });
 
-    socket.on('playerLeft', (player) => {
-      if (player == this.state.manager) {
+    socket.on('playerLeft', (playerId, turn) => {
+      if (playerId == this.state.manager) {
         this.setState({ redirect: true });
       }
       else {
         this.setState((prevState) => {
-          return {
+          let state = {
             players: prevState.players.filter((candidate) => {
-              return candidate.id != player;
-            })
+              return candidate.id != playerId;
+            }),
           };
+
+          if (turn) {
+            state.turn = turn;
+          }
+
+          return state;
         });
       }
     });
@@ -167,7 +182,7 @@ export default class Game extends Component {
           seed: seed,
           images: this.generateDeckImages(prevState.pairs, seed),
           playing: true,
-          turn: 0,
+          turn: prevState.manager,
         };
       });
 
@@ -214,7 +229,7 @@ export default class Game extends Component {
   }
 
   flipCard(deckIndex) {
-    if (this.state.turn == this.state.myTurnNumber && this.state.deck[deckIndex] < 0) {
+    if (this.isMyTurn && this.state.deck[deckIndex] < 0) {
       socket.emit('flipCard', deckIndex);
     }
   }
@@ -272,19 +287,20 @@ export default class Game extends Component {
 
               return (
                 <li key={player.id}>
-                  {this.playerName(player)}
+                  <Player name={player.name} id={player.id} />
                   <ul>
-                    {player.name && <li>{id}</li>}
-                    {this.state.playing || this.state.manager == player.id ? null : <li>{this.state.stats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
+                    {this.state.playing || this.state.manager == player.id
+                      ? <li>Room Manager</li>
+                      : <li>{this.state.stats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
                   </ul>
                 </li>
               );
             })}
           </ul>
           {this.state.playing
-            ? this.state.turn == this.state.myTurnNumber
+            ? this.isMyTurn
                 ? <p><strong>It is your turn to make a move...</strong></p>
-                : <p>{this.playerName(this.state.players[this.state.turn])} is making a move...</p>
+                : <p><em><Player name={this.playerName(this.state.turn)} id={this.state.turn} /> is making a move...</em></p>
             : null}
         </div>
         {this.state.playing &&
