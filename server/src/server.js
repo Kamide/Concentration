@@ -24,7 +24,7 @@ function deleteGame(socket) {
 
   if (game) {
     delete games[socket.id];
-    io.to(LOBBY).emit('lobbyDeleteGame', game.id);
+    io.to(LOBBY).emit('game_list_game_delete', game.id);
     devlog(`Game   ${game} deleted.`);
   }
 }
@@ -33,7 +33,7 @@ function leaveGame(socket) {
   let player = players[socket.id];
 
   if (player.isAManager) {
-    player.emit('playerLeft', socket.id);
+    player.emit('player_leave', socket.id);
     deleteGame(socket);
   }
   else if (player.manager) {
@@ -41,7 +41,7 @@ function leaveGame(socket) {
 
     if (game) {
       game.delete(player);
-      io.to(LOBBY).emit('lobbyPlayerLeftGame', game.id);
+      io.to(LOBBY).emit('game_list_game_leave', game.id);
       devlog(`Player ${player} left ${game}.`);
     }
   }
@@ -57,55 +57,55 @@ io.on('connection', (socket) => {
   players[socket.id] = player;
   devlog(`Player ${player} connected.`);
 
-  socket.on('setPlayerName', (name) => {
+  socket.on('player_name_update', (name) => {
     name = String(name);
     player.name = name;
 
     if (player.game) {
-      io.to(player.game).emit('playerNameChanged', socket.id, name);
+      io.to(player.game).emit('player_name_update_success', socket.id, name);
     }
 
     devlog(`Player ${player} changed their name.`);
   });
 
-  socket.on('newGame', ({title, pairs, limit}) => {
+  socket.on('game_create_request', ({title, pairs, playerLimit}) => {
     deleteGame(socket);
     title = String(title);
     pairs = parseInt(pairs);
-    limit = parseInt(limit);
+    playerLimit = parseInt(playerLimit);
 
-    if (emptyString(title) || outOfRange(pairs, 1, 52) || outOfRange(limit, 1, 4)) {
-      io.to(socket.id).emit('newGameRedirect', null);
+    if (emptyString(title) || outOfRange(pairs, 1, 52) || outOfRange(playerLimit, 1, 4)) {
+      io.to(socket.id).emit('game_create_status', null);
     }
     else {
       let timestamp = Date.now();
-      let game = new Game(socket.id, timestamp, title, pairs, limit);
+      let game = new Game(socket.id, timestamp, title, pairs, playerLimit);
       games[socket.id] = game;
-      io.to(socket.id).emit('newGameRedirect', timestamp);
-      io.to(LOBBY).emit('lobbyNewGame', game.publicInfo);
+      io.to(socket.id).emit('game_create_status', timestamp);
+      io.to(LOBBY).emit('game_list_game_create', game.publicInfo);
       devlog(`Game   ${game} created.`);
     }
   });
 
-  socket.on('requestJoinGame', (manager, timestamp) => {
+  socket.on('game_join_request', (manager, timestamp) => {
     manager = String(manager);
     timestamp = parseInt(timestamp);
     let game = games[manager];
     let info = game && game.add(player, timestamp);
-    io.to(socket.id).emit('joinGame', info);
+    io.to(socket.id).emit('game_join_status', info);
 
     if (info) {
-      io.to(LOBBY).emit('lobbyPlayerJoinedGame', game.id);
+      io.to(LOBBY).emit('game_list_game_join', game.id);
       devlog(`Player ${player} joined ${game}.`);
     }
   });
 
-  socket.on('leaveGame', () => {
+  socket.on('game_leave', () => {
     leaveGame(socket);
   });
 
-  socket.on('joinLobby', () => {
-    io.to(socket.id).emit('gameList',
+  socket.on('lobby_join', () => {
+    io.to(socket.id).emit('game_list_get',
       Object.values(games)
         .filter(game => !game.playing)
         .map(game => game.publicInfo));
@@ -113,11 +113,11 @@ io.on('connection', (socket) => {
     socket.join(LOBBY);
   });
 
-  socket.on('leaveLobby', () => {
+  socket.on('lobby_leave', () => {
     socket.leave(LOBBY);
   });
 
-  socket.on('toggleReady', () => {
+  socket.on('ready_toggle_request', () => {
     if (!player.game) {
       return;
     }
@@ -125,30 +125,30 @@ io.on('connection', (socket) => {
     let game = games[player.manager];
 
     if (player.isAManager) {
-      let seed = game.start();
+      let deckImageSeed = game.start();
 
-      if (!seed) {
+      if (!deckImageSeed) {
         return;
       }
 
-      io.to(game.id).emit('gameStart', seed);
+      io.to(game.id).emit('game_start', deckImageSeed);
     }
     else {
       if (game) {
         game.toggleReady(player)
-        io.to(game.id).emit('readyToggled', player.id);
+        io.to(game.id).emit('ready_toggle_status', player.id);
       }
     }
   });
 
-  socket.on('flipCard', (deckIndex) => {
+  socket.on('card_flip_request', (deckIndex) => {
     if (!player.game) {
       return;
     }
 
     deckIndex = parseInt(deckIndex);
     let game = games[player.manager];
-    io.to(game.id).emit('flipCardResult', game.flip(player, deckIndex));
+    io.to(game.id).emit('card_flip_status', game.flip(player, deckIndex));
   });
 
   socket.on('disconnect', () => {

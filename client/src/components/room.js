@@ -35,10 +35,10 @@ export default class Room extends Component {
           validators: [positiveIntegerRange],
           errors: []
         },
-        limit: {
+        playerLimit: {
           args: {
             type: 'number',
-            id: 'gameLimit',
+            id: 'gamePlayerLimit',
             defaultValue: 4,
             required: true,
             min: 1,
@@ -104,8 +104,8 @@ export default class Room extends Component {
       return;
     }
 
-    socket.emit('newGame', values);
-    socket.on('newGameRedirect', (timestamp) => {
+    socket.emit('game_create_request', values);
+    socket.on('game_create_status', (timestamp) => {
       if (timestamp != null) {
         this.setState({ redirect: socket.id + '/' + timestamp });
       }
@@ -113,7 +113,7 @@ export default class Room extends Component {
         this.validate(({key}) => values[key]);
       }
 
-      socket.off('newGameRedirect');
+      socket.off('game_create_status');
     });
   }
 

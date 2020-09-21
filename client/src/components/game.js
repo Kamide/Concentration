@@ -13,13 +13,12 @@ export default class Game extends Component {
       timestamp: this.props.match.params.timestamp,
       title: 'Not Available',
       pairs: 0,
-      limit: 0,
-      players: [],
-      myTurnNumber: -1,
-      stats: {},
       deck: [],
-      seed: '',
+      imageSeed: '',
       images: [],
+      playerLimit: 0,
+      players: [],
+      playerStats: {},
       playing: false,
       turn: '',
       prevCard: {},
@@ -27,9 +26,9 @@ export default class Game extends Component {
       redirect: ''
     };
 
+    this.flipCard = this.flipCard.bind(this);
     this.prevCardPush = this.prevCardPush.bind(this);
     this.prevCardPop = this.prevCardPop.bind(this);
-    this.flipCard = this.flipCard.bind(this);
   }
 
   get id() {
@@ -72,14 +71,133 @@ export default class Game extends Component {
 
   updateStats(prevState, player, key, value) {
     return {
-      stats: {
-        ...prevState.stats,
+      playerStats: {
+        ...prevState.playerStats,
         [player]: {
-          ...prevState.stats[player],
+          ...prevState.playerStats[player],
           [key]: value
         }
       }
     };
+  }
+
+  componentDidMount() {
+    socket.emit('game_join_request', this.state.manager, this.state.timestamp);
+
+    socket.on('game_join_status', (info) => {
+      if (info) {
+        delete info.playerCount;
+        this.setState(info);
+      }
+      else {
+        this.setState({ redirect: true });
+      }
+
+      socket.off('game_join_status');
+    });
+
+    socket.on('player_join', (player, playerStats) => {
+      this.setState((prevState) => {
+        return {
+          players: prevState.players.concat([player]),
+          playerStats: {
+            ...prevState.playerStats,
+            [player.id]: playerStats
+          }
+        };
+      });
+    });
+
+    socket.on('player_leave', (playerId, turn) => {
+      if (playerId == this.state.manager) {
+        this.setState({ redirect: true });
+      }
+      else {
+        this.setState((prevState) => {
+          let state = {
+            players: prevState.players.filter((candidate) => {
+              return candidate.id != playerId;
+            }),
+          };
+
+          if (turn) {
+            state.turn = turn;
+          }
+
+          return state;
+        });
+      }
+    });
+
+    socket.on('player_name_update_success', (player, name) => {
+      this.setState((prevState) => {
+        return this.updatePlayer(prevState, player, 'name', name);
+      });
+    });
+
+    socket.on('ready_toggle_status', (player) => {
+      this.setState((prevState) => {
+        return this.updateStats(prevState, player, 'ready', !prevState.playerStats[player].ready);
+      });
+    });
+
+    socket.on('game_start', (imageSeed) => {
+      this.setState((prevState) => {
+        return {
+          deck: new Array(prevState.pairs * 2).fill(-1),
+          imageSeed: imageSeed,
+          images: this.generateDeckImages(prevState.pairs, imageSeed),
+          playing: true,
+          turn: prevState.manager,
+        };
+      });
+
+      socket.on('card_flip_status', (result) => {
+        if (result) {
+          this.prevCardPop();
+          this.prevCardPush(result.deckIndex, result.card);
+          this.setState({ turn: result.turn });
+
+          switch (result.status) {
+            case 'commit':
+              this.pushToDeck();
+              break;
+            case 'flush':
+              this.setState({ flush: true });
+          }
+        }
+      });
+    });
+  }
+
+  componentWillUnmount() {
+    socket.off('game_join_status')
+    socket.off('player_join');
+    socket.off('player_leave');
+    socket.off('player_name_update_success');
+    socket.off('ready_toggle_status');
+    socket.off('game_start');
+    socket.emit('game_leave');
+  }
+
+  toggleReady() {
+    socket.emit('ready_toggle_request');
+  }
+
+  generateDeckImages(pairs, imageSeed) {
+    let images = [];
+
+    for (let i = 0, j = 0; i < pairs; j = ++i % imageSeed.length) {
+      images.push(imageSeed.substring(j) + imageSeed.substring(0, j));
+    }
+
+    return images;
+  }
+
+  flipCard(deckIndex) {
+    if (this.isMyTurn && this.state.deck[deckIndex] < 0) {
+      socket.emit('card_flip_request', deckIndex);
+    }
   }
 
   prevCardPush(deckIndex, card) {
@@ -112,126 +230,6 @@ export default class Game extends Component {
         prevCard: {}
       };
     });
-  }
-
-  componentDidMount() {
-    socket.emit('requestJoinGame', this.state.manager, this.state.timestamp);
-
-    socket.on('joinGame', (info) => {
-      if (info) {
-        info.myTurnNumber = info.count - 1;
-        delete info.count;
-        this.setState(info);
-      }
-      else {
-        this.setState({ redirect: true });
-      }
-
-      socket.off('joinGame');
-    });
-
-    socket.on('playerJoined', (player, stats) => {
-      this.setState((prevState) => {
-        return {
-          players: prevState.players.concat([player]),
-          stats: {
-            ...prevState.stats,
-            [player.id]: stats
-          }
-        };
-      });
-    });
-
-    socket.on('playerLeft', (playerId, turn) => {
-      if (playerId == this.state.manager) {
-        this.setState({ redirect: true });
-      }
-      else {
-        this.setState((prevState) => {
-          let state = {
-            players: prevState.players.filter((candidate) => {
-              return candidate.id != playerId;
-            }),
-          };
-
-          if (turn) {
-            state.turn = turn;
-          }
-
-          return state;
-        });
-      }
-    });
-
-    socket.on('playerNameChanged', (player, name) => {
-      this.setState((prevState) => {
-        return this.updatePlayer(prevState, player, 'name', name);
-      });
-    });
-
-    socket.on('readyToggled', (player) => {
-      this.setState((prevState) => {
-        return this.updateStats(prevState, player, 'ready', !prevState.stats[player].ready);
-      });
-    });
-
-    socket.on('gameStart', (seed) => {
-      this.setState((prevState) => {
-        return {
-          deck: new Array(prevState.pairs * 2).fill(-1),
-          seed: seed,
-          images: this.generateDeckImages(prevState.pairs, seed),
-          playing: true,
-          turn: prevState.manager,
-        };
-      });
-
-      socket.on('flipCardResult', (result) => {
-        if (result) {
-          this.prevCardPop();
-          this.prevCardPush(result.deckIndex, result.card);
-          this.setState({ turn: result.turn });
-
-          switch (result.status) {
-            case 'commit':
-              this.pushToDeck();
-              break;
-            case 'flush':
-              this.setState({ flush: true });
-          }
-        }
-      });
-    });
-  }
-
-  componentWillUnmount() {
-    socket.off('joinGame')
-    socket.off('playerJoined');
-    socket.off('playerLeft');
-    socket.off('playerNameChanged');
-    socket.off('readyToggled');
-    socket.off('gameStart');
-    socket.emit('leaveGame');
-  }
-
-  toggleReady() {
-    socket.emit('toggleReady');
-  }
-
-  generateDeckImages(pairs, seed) {
-    let images = [];
-
-    for (let i = 0, j = 0; i < pairs; j = ++i % seed.length) {
-      images.push(seed.substring(j) + seed.substring(0, j));
-    }
-
-    return images;
-  }
-
-  flipCard(deckIndex) {
-    if (this.isMyTurn && this.state.deck[deckIndex] < 0) {
-      socket.emit('flipCard', deckIndex);
-    }
   }
 
   renderCard(card, deckIndex) {
@@ -271,7 +269,7 @@ export default class Game extends Component {
           <p><span>Distinct Card Pairs:</span> <span>{this.state.pairs}</span></p>
           {!this.state.playing &&
             <button onClick={this.toggleReady}>
-              {(this.state.stats[socket.id] != undefined && this.state.stats[socket.id].ready)
+              {(this.state.playerStats[socket.id] != undefined && this.state.playerStats[socket.id].ready)
                 ? 'Unready'
                 : (this.isManager ? 'Start Game' : 'Ready')}
             </button>}
@@ -279,7 +277,7 @@ export default class Game extends Component {
         <div>
           <h2>
             <span>Players:</span>{' '}
-            <Fraction numerator={this.state.players.length} denominator={this.state.limit} />
+            <Fraction numerator={this.state.players.length} denominator={this.state.playerLimit} />
           </h2>
           <ul>
             {this.state.players.map((player) => {
@@ -291,7 +289,7 @@ export default class Game extends Component {
                   <ul>
                     {this.state.playing || this.state.manager == player.id
                       ? <li>Room Manager</li>
-                      : <li>{this.state.stats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
+                      : <li>{this.state.playerStats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
                   </ul>
                 </li>
               );

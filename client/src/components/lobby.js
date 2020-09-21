@@ -10,13 +10,13 @@ export default class Lobby extends Component {
       games: []
     }
 
-    this.updateCount = this.updateCount.bind(this);
+    this.updatePlayerCount = this.updatePlayerCount.bind(this);
   }
 
-  updateCount(game, value) {
+  updatePlayerCount(gameId, value) {
     this.setState((prevState) => {
       let index = prevState.games.findIndex((candidate) => {
-        return candidate.id == game;
+        return candidate.id == gameId;
       });
 
       return {
@@ -24,7 +24,7 @@ export default class Lobby extends Component {
           ...prevState.games.slice(0, index),
           {
             ...prevState.games[index],
-            count: prevState.games[index].count + value
+            playerCount: prevState.games[index].playerCount + value
           },
           ...prevState.games.slice(index + 1)
         ]
@@ -33,14 +33,14 @@ export default class Lobby extends Component {
   }
 
   componentDidMount() {
-    socket.emit('joinLobby');
+    socket.emit('lobby_join');
 
-    socket.on('gameList', (games) => {
+    socket.on('game_list_get', (games) => {
       this.setState({ games: games });
-      socket.off('gameList');
+      socket.off('game_list_get');
     });
 
-    socket.on('lobbyNewGame', (game) => {
+    socket.on('game_list_game_create', (game) => {
       this.setState((prevState) => {
         return {
           games: prevState.games.concat([game])
@@ -48,32 +48,32 @@ export default class Lobby extends Component {
       });
     });
 
-    socket.on('lobbyDeleteGame', (game) => {
+    socket.on('game_list_game_delete', (gameId) => {
       this.setState((prevState) => {
         return {
           games: prevState.games.filter((candidate) => {
-            return candidate.id != game;
+            return candidate.id != gameId;
           })
         };
       });
     });
 
-    socket.on('lobbyPlayerJoinedGame', (game) => {
-      this.updateCount(game, 1);
+    socket.on('game_list_game_join', (game) => {
+      this.updatePlayerCount(game, 1);
     });
 
-    socket.on('lobbyPlayerLeftGame', (game) => {
-      this.updateCount(game, -1);
+    socket.on('game_list_game_leave', (game) => {
+      this.updatePlayerCount(game, -1);
     });
   }
 
   componentWillUnmount() {
-    socket.off('gameList');
-    socket.off('lobbyNewGame');
-    socket.off('lobbyDeleteGame');
-    socket.off('lobbyPlayerJoinedGame');
-    socket.off('lobbyPlayerLeftGame');
-    socket.emit('leaveLobby');
+    socket.off('game_list_get');
+    socket.off('game_list_game_create');
+    socket.off('game_list_game_delete');
+    socket.off('game_list_game_join');
+    socket.off('game_list_game_leave');
+    socket.emit('lobby_leave');
   }
 
   render() {
@@ -97,7 +97,7 @@ export default class Lobby extends Component {
               <p><span>Distinct Card Pairs:</span> <span>{game.pairs}</span></p>
               <p>
                 <span>Players:</span>{' '}
-                <Fraction numerator={game.count} denominator={game.limit} />
+                <Fraction numerator={game.playerCount} denominator={game.playerLimit} />
               </p>
             </div>
           );

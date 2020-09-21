@@ -21,23 +21,23 @@ function shuffle(cards) {
 }
 
 module.exports = class Game {
-  constructor(manager, timestamp, title, pairs, limit) {
+  constructor(manager, timestamp, title, pairs, playerLimit) {
     this.manager = manager;
     this.timestamp = timestamp;
     this.title = title;
 
     this.pairs = pairs;
     this.deck = [];
-    this.seed = '';
+    this.imageSeed = '';
 
-    this.limit = limit;
+    this.playerLimit = playerLimit;
     this.players = [];
-    this.stats = {};
+    this.playerStats = {};
 
     this.playing = false;
-    this.deckShown = [];
     this.turnIndex = -1;
     this.flipsLeft = 2;
+    this.deckShown = [];
     this.prevDeckIndex = -1;
   }
 
@@ -45,7 +45,7 @@ module.exports = class Game {
     return this.manager + '/' + this.timestamp;
   }
 
-  get count() {
+  get playerCount() {
     return this.players.length;
   }
 
@@ -55,9 +55,11 @@ module.exports = class Game {
 
   get publicInfo() {
     return {
-      id: this.id, title: this.title,
+      id: this.id,
+      title: this.title,
       pairs: this.pairs,
-      limit: this.limit, count: this.count,
+      playerLimit: this.playerLimit,
+      playerCount: this.playerCount,
     };
   }
 
@@ -76,23 +78,23 @@ module.exports = class Game {
   }
 
   add(player, timestamp) {
-    if (this.timestamp != timestamp || (this.count < 1 && this.manager != player.id)
-      || this.count >= this.limit || this.playerIndex(player) > -1 || this.playing) {
+    if (this.timestamp != timestamp || (this.playerCount < 1 && this.manager != player.id)
+      || this.playerCount >= this.playerLimit || this.playerIndex(player) > -1 || this.playing) {
       return null;
     }
 
     this.players.push(player);
-    this.stats[player.id] = {
+    this.playerStats[player.id] = {
       ready: false,
       hands: []
     };
     player.join(this.id);
-    player.emit('playerJoined', player.info, this.stats[player.id]);
+    player.emit('player_join', player.info, this.playerStats[player.id]);
 
     return {
       ...this.publicInfo,
       players: this.playerInfo,
-      stats: this.stats
+      playerStats: this.playerStats
     };
   }
 
@@ -100,28 +102,34 @@ module.exports = class Game {
     let index = this.playerIndex(player);
 
     if (index > -1) {
-      delete this.stats[player.id];
+      delete this.playerStats[player.id];
       this.players.splice(index, 1)[0];
-      this.decrementTurnIndex();
-      this.incrementTurnIndex();
-      player.emit('playerLeft', player.id, this.turn.id);
+
+      if (this.turnIndex > -1) {
+        this.decrementTurnIndex();
+        this.incrementTurnIndex();
+        player.emit('player_leave', player.id, this.turn.id);
+      }
+      else {
+        player.emit('player_leave', player.id);
+      }
     }
 
-    return this.count;
+    return this.playerCount;
   }
 
   toggleReady(player) {
     if (this.playerIndex(player) > -1) {
-      this.stats[player.id].ready = !this.stats[player.id].ready;
+      this.playerStats[player.id].ready = !this.playerStats[player.id].ready;
     }
   }
 
   waiting() {
-    let readies = Object.values(this.stats).reduce((accumulator, stats) => {
-      return accumulator + (stats.ready ? 1 : 0);
+    let readies = Object.values(this.playerStats).reduce((accumulator, playerStats) => {
+      return accumulator + (playerStats.ready ? 1 : 0);
     }, 0);
 
-    return readies < this.count - 1;
+    return readies < this.playerCount - 1;
   }
 
   start() {
@@ -132,14 +140,14 @@ module.exports = class Game {
     for (let i = 0; i < this.pairs; ++i) {
       this.deck.push(i, i);
       this.deckShown.push(-1, -1);
-      this.seed += CHAR_SET[randomInteger(CHAR_SET.length)];
+      this.imageSeed += CHAR_SET[randomInteger(CHAR_SET.length)];
     }
 
     shuffle(this.deck);
     this.playing = true;
     this.turnIndex = 0;
 
-    return this.seed;
+    return this.imageSeed;
   }
 
   flip(player, deckIndex) {
@@ -180,11 +188,11 @@ module.exports = class Game {
   }
 
   incrementTurnIndex() {
-    this.turnIndex = (this.turnIndex + 1) % this.count;
+    this.turnIndex = (this.turnIndex + 1) % this.playerCount;
   }
 
   decrementTurnIndex() {
-    this.turnIndex = (this.turnIndex - 1 + this.count) % this.count;
+    this.turnIndex = (this.turnIndex - 1 + this.playerCount) % this.playerCount;
   }
 
   toString() {

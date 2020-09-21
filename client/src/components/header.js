@@ -21,7 +21,7 @@ export default class Header extends Component {
       let state = { id: socket.id };
 
       if (localStorage.getItem('name')) {
-        socket.emit('setPlayerName', localStorage.getItem('name'));
+        socket.emit('player_name_update', localStorage.getItem('name'));
         state.name = localStorage.getItem('name');
       }
 
@@ -33,7 +33,7 @@ export default class Header extends Component {
     event.preventDefault();
 
     if (this.state.name != event.target.playerName.value) {
-      socket.emit('setPlayerName', event.target.playerName.value);
+      socket.emit('player_name_update', event.target.playerName.value);
       localStorage.setItem('name', event.target.playerName.value);
       clearTimeout(this.state.timer);
 
