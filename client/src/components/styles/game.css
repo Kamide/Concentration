@@ -1,13 +1,20 @@
-.table-top {
-  display: grid;
-  grid-template-columns: repeat(6, 128px);
-  gap: 1em;
+.pairs ul, .table-top * {
+  margin: 0;
+  padding: 0;
+}
+
+.pairs > span::after {
+  content: ': ';
+}
+
+.pairs ul {
+  display: inline-flex;
+  list-style: none;
 }
 
 .table-top * {
   display: inline-block;
-  margin: 0;
-  padding: 0;
+  vertical-align: middle;
 }
 
 .card {
@@ -17,10 +24,4 @@
   border: thin solid rgba(0, 0, 0, 0.5);
   background-color: rgba(255, 255, 255, 0.5);
   box-sizing: border-box;
-}
-
-.card figcaption {
-  position: absolute;
-  top: 0;
-  left: 0;
 }

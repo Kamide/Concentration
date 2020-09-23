@@ -86,7 +86,7 @@ module.exports = class Game {
     this.players.push(player);
     this.playerStats[player.id] = {
       ready: false,
-      hands: []
+      pairs: []
     };
     player.join(this.id);
     player.emit('player_join', player.info, this.playerStats[player.id]);
@@ -162,6 +162,7 @@ module.exports = class Game {
         if (this.deck[this.prevDeckIndex] == this.deck[deckIndex]) {
           this.deckShown[this.prevDeckIndex] = this.deck[deckIndex];
           this.deckShown[deckIndex] = this.deck[deckIndex];
+          this.playerStats[player.id].pairs.push(this.deck[deckIndex]);
           status = 'commit';
         }
         else {

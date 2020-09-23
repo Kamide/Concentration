@@ -69,12 +69,12 @@ export default class Game extends Component {
     };
   }
 
-  updateStats(prevState, player, key, value) {
+  updateStats(prevState, playerId, key, value) {
     return {
       playerStats: {
         ...prevState.playerStats,
-        [player]: {
-          ...prevState.playerStats[player],
+        [playerId]: {
+          ...prevState.playerStats[playerId],
           [key]: value
         }
       }
@@ -156,15 +156,16 @@ export default class Game extends Component {
         if (result) {
           this.prevCardPop();
           this.prevCardPush(result.deckIndex, result.card);
-          this.setState({ turn: result.turn });
 
           switch (result.status) {
             case 'commit':
-              this.pushToDeck();
+              this.commitHandToDeck();
               break;
             case 'flush':
               this.setState({ flush: true });
           }
+
+          this.setState({ turn: result.turn });
         }
       });
     });
@@ -217,38 +218,42 @@ export default class Game extends Component {
     }
   }
 
-  pushToDeck() {
+  commitHandToDeck() {
     this.setState((prevState) => {
       let deck = prevState.deck;
+      let hand = -1;
 
       for (const [index, card] of Object.entries(prevState.prevCard)) {
         deck[index] = card;
+        hand = card;
       }
 
       return {
         deck: deck,
+        ...this.updateStats(prevState, prevState.turn, 'pairs', prevState.playerStats[prevState.turn].pairs.concat(hand)),
         prevCard: {}
       };
     });
   }
 
-  renderCard(card, deckIndex) {
-    let imgSrc = '';
+  renderCardImage(card, width, height) {
+    if (card < 0) {
+      return null;
+    }
 
+    return <img src={'https://picsum.photos/seed/' + this.state.images[card] + '/128/128'} alt={'Card ' + card} width={width} height={height} />;
+  }
+
+  renderCard(card, deckIndex) {
     if (deckIndex in this.state.prevCard) {
       card = this.state.prevCard[deckIndex];
     }
 
-    if (card > -1) {
-      imgSrc = this.state.images[card];
-    }
-
     return (
       <button key={deckIndex} onClick={() => this.flipCard(deckIndex)} className="card">
-        <figure>
-          {imgSrc && <img src={'https://picsum.photos/seed/' + imgSrc + '/128/128'} />}
-          <figcaption>Card {card > -1 ? card : 'Unknown'}</figcaption>
-        </figure>
+        {card > -1
+          ? this.renderCardImage(card, 128, 128)
+          : 'Unknown Card'}
       </button>
     );
   }
@@ -290,22 +295,33 @@ export default class Game extends Component {
                     {this.state.playing || this.state.manager == player.id
                       ? <li>Room Manager</li>
                       : <li>{this.state.playerStats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
+                    {this.state.playing &&
+                      <li className="pairs">
+                        <span>Pairs</span>
+                        <ul>
+                          {this.state.playerStats[player.id].pairs.length > 0
+                            ? this.state.playerStats[player.id].pairs.map((hand) => {
+                                return <li key={hand}>{this.renderCardImage(hand, 32, 32)}</li>;
+                              })
+                            : <span>None</span>}
+                        </ul>
+                      </li>
+                    }
                   </ul>
                 </li>
               );
             })}
           </ul>
-          {this.state.playing
-            ? this.isMyTurn
-                ? <p><strong>It is your turn to make a move...</strong></p>
-                : <p><em><Player name={this.playerName(this.state.turn)} id={this.state.turn} /> is making a move...</em></p>
-            : null}
         </div>
+        {this.state.playing
+          ? this.isMyTurn
+            ? <p><strong>It is your turn to make a move...</strong></p>
+            : <p><em><Player name={this.playerName(this.state.turn)} id={this.state.turn} /> is making a move...</em></p>
+          : null}
         {this.state.playing &&
           <div className="table-top">
             {this.state.deck.map((card, deckIndex) => this.renderCard(card, deckIndex))}
-          </div>
-        }
+          </div>}
       </main>
     );
   }
