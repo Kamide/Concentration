@@ -33,14 +33,14 @@ export default class Lobby extends Component {
   }
 
   componentDidMount() {
-    socket.emit('lobby_join');
+    socket.emit('join_lobby');
 
-    socket.on('game_list_get', (games) => {
+    socket.on('get_game_list', (games) => {
       this.setState({ games: games });
-      socket.off('game_list_get');
+      socket.off('get_game_list');
     });
 
-    socket.on('game_list_game_create', (game) => {
+    socket.on('new_game_list_item', (game) => {
       this.setState((prevState) => {
         return {
           games: prevState.games.concat([game])
@@ -48,7 +48,7 @@ export default class Lobby extends Component {
       });
     });
 
-    socket.on('game_list_game_delete', (gameId) => {
+    socket.on('delete_game_list_item', (gameId) => {
       this.setState((prevState) => {
         return {
           games: prevState.games.filter((candidate) => {
@@ -58,22 +58,22 @@ export default class Lobby extends Component {
       });
     });
 
-    socket.on('game_list_game_join', (game) => {
+    socket.on('increment_game_list_item_player_count', (game) => {
       this.updatePlayerCount(game, 1);
     });
 
-    socket.on('game_list_game_leave', (game) => {
+    socket.on('decrement_game_list_item_player_count', (game) => {
       this.updatePlayerCount(game, -1);
     });
   }
 
   componentWillUnmount() {
-    socket.off('game_list_get');
-    socket.off('game_list_game_create');
-    socket.off('game_list_game_delete');
-    socket.off('game_list_game_join');
-    socket.off('game_list_game_leave');
-    socket.emit('lobby_leave');
+    socket.off('get_game_list');
+    socket.off('new_game_list_item');
+    socket.off('delete_game_list_item');
+    socket.off('increment_game_list_item_player_count');
+    socket.off('decrement_game_list_item_player_count');
+    socket.emit('leave_lobby');
   }
 
   render() {

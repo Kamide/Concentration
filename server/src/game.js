@@ -1,7 +1,6 @@
-const e = require('express');
 const Player = require('./player');
 
-const CHAR_SET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const SEED_CHAR_SET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
 function randomInteger(max, min = 0) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -61,6 +60,14 @@ module.exports = class Game {
       playerLimit: this.playerLimit,
       playerCount: this.playerCount,
     };
+  }
+
+  get waiting() {
+    let readies = Object.values(this.playerStats).reduce((accumulator, playerStats) => {
+      return accumulator + (playerStats.ready ? 1 : 0);
+    }, 0);
+
+    return readies < this.playerCount - 1;
   }
 
   get turn() {
@@ -124,23 +131,15 @@ module.exports = class Game {
     }
   }
 
-  waiting() {
-    let readies = Object.values(this.playerStats).reduce((accumulator, playerStats) => {
-      return accumulator + (playerStats.ready ? 1 : 0);
-    }, 0);
-
-    return readies < this.playerCount - 1;
-  }
-
   start() {
-    if (this.waiting() || this.playing) {
+    if (this.waiting || this.playing) {
       return '';
     }
 
     for (let i = 0; i < this.pairs; ++i) {
       this.deck.push(i, i);
       this.deckShown.push(-1, -1);
-      this.imageSeed += CHAR_SET[randomInteger(CHAR_SET.length)];
+      this.imageSeed += SEED_CHAR_SET[randomInteger(SEED_CHAR_SET.length)];
     }
 
     shuffle(this.deck);

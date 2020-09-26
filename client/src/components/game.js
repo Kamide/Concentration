@@ -82,9 +82,9 @@ export default class Game extends Component {
   }
 
   componentDidMount() {
-    socket.emit('game_join_request', this.state.manager, this.state.timestamp);
+    socket.emit('join_game', this.state.manager, this.state.timestamp);
 
-    socket.on('game_join_status', (info) => {
+    socket.on('join_game_status', (info) => {
       if (info) {
         delete info.playerCount;
         this.setState(info);
@@ -93,7 +93,7 @@ export default class Game extends Component {
         this.setState({ redirect: true });
       }
 
-      socket.off('game_join_status');
+      socket.off('join_game_status');
     });
 
     socket.on('player_join', (player, playerStats) => {
@@ -129,19 +129,19 @@ export default class Game extends Component {
       }
     });
 
-    socket.on('player_name_update_success', (player, name) => {
+    socket.on('update_player_name_success', (player, name) => {
       this.setState((prevState) => {
         return this.updatePlayer(prevState, player, 'name', name);
       });
     });
 
-    socket.on('ready_toggle_status', (player) => {
+    socket.on('toggle_ready_status', (player) => {
       this.setState((prevState) => {
         return this.updateStats(prevState, player, 'ready', !prevState.playerStats[player].ready);
       });
     });
 
-    socket.on('game_start', (imageSeed) => {
+    socket.on('start_game', (imageSeed) => {
       this.setState((prevState) => {
         return {
           deck: new Array(prevState.pairs * 2).fill(-1),
@@ -152,7 +152,7 @@ export default class Game extends Component {
         };
       });
 
-      socket.on('card_flip_status', (result) => {
+      socket.on('flip_card_status', (result) => {
         if (result) {
           this.prevCardPop();
           this.prevCardPush(result.deckIndex, result.card);
@@ -172,17 +172,17 @@ export default class Game extends Component {
   }
 
   componentWillUnmount() {
-    socket.off('game_join_status')
+    socket.off('join_game_status')
     socket.off('player_join');
     socket.off('player_leave');
-    socket.off('player_name_update_success');
-    socket.off('ready_toggle_status');
-    socket.off('game_start');
-    socket.emit('game_leave');
+    socket.off('update_player_name_success');
+    socket.off('toggle_ready_status');
+    socket.off('start_game');
+    socket.emit('leave_game');
   }
 
   toggleReady() {
-    socket.emit('ready_toggle_request');
+    socket.emit('toggle_ready');
   }
 
   generateDeckImages(pairs, imageSeed) {
@@ -197,7 +197,7 @@ export default class Game extends Component {
 
   flipCard(deckIndex) {
     if (this.isMyTurn && this.state.deck[deckIndex] < 0) {
-      socket.emit('card_flip_request', deckIndex);
+      socket.emit('flip_card', deckIndex);
     }
   }
 

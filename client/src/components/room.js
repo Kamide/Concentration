@@ -104,8 +104,8 @@ export default class Room extends Component {
       return;
     }
 
-    socket.emit('game_create_request', values);
-    socket.on('game_create_status', (timestamp) => {
+    socket.emit('new_game', values);
+    socket.on('new_game_status', (timestamp) => {
       if (timestamp != null) {
         this.setState({ redirect: socket.id + '/' + timestamp });
       }
@@ -113,7 +113,7 @@ export default class Room extends Component {
         this.validate(({key}) => values[key]);
       }
 
-      socket.off('game_create_status');
+      socket.off('new_game_status');
     });
   }
 
