@@ -18,7 +18,7 @@ module.exports = class Player {
   }
 
   get isAManager() {
-    return this.manager == this.id;
+    return this.manager === this.id;
   }
 
   join(game) {

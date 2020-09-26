@@ -80,12 +80,12 @@ module.exports = class Game {
     }
 
     return this.players.findIndex((candidate) => {
-      return candidate.id == player.id;
+      return candidate.id === player.id;
     });
   }
 
   add(player, timestamp) {
-    if (this.timestamp != timestamp || (this.playerCount < 1 && this.manager != player.id)
+    if (this.timestamp !== timestamp || (this.playerCount < 1 && this.manager !== player.id)
       || this.playerCount >= this.playerLimit || this.playerIndex(player) > -1 || this.playing) {
       return null;
     }
@@ -150,15 +150,15 @@ module.exports = class Game {
   }
 
   flip(player, deckIndex) {
-    if (player == this.turn && deckIndex >= 0 && deckIndex < this.deck.length) {
-      if (this.prevDeckIndex == deckIndex || this.deckShown[deckIndex] > -1) {
+    if (player === this.turn && deckIndex >= 0 && deckIndex < this.deck.length) {
+      if (this.prevDeckIndex === deckIndex || this.deckShown[deckIndex] > -1) {
         return null;
       }
 
       let status = '';
 
       if (--this.flipsLeft < 1) {
-        if (this.deck[this.prevDeckIndex] == this.deck[deckIndex]) {
+        if (this.deck[this.prevDeckIndex] === this.deck[deckIndex]) {
           this.deckShown[this.prevDeckIndex] = this.deck[deckIndex];
           this.deckShown[deckIndex] = this.deck[deckIndex];
           this.playerStats[player.id].pairs.push(this.deck[deckIndex]);

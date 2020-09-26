@@ -16,7 +16,7 @@ export default class Lobby extends Component {
   updatePlayerCount(gameId, value) {
     this.setState((prevState) => {
       let index = prevState.games.findIndex((candidate) => {
-        return candidate.id == gameId;
+        return candidate.id === gameId;
       });
 
       return {
@@ -52,7 +52,7 @@ export default class Lobby extends Component {
       this.setState((prevState) => {
         return {
           games: prevState.games.filter((candidate) => {
-            return candidate.id != gameId;
+            return candidate.id !== gameId;
           })
         };
       });

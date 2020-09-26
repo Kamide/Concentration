@@ -36,16 +36,16 @@ export default class Game extends Component {
   }
 
   get isManager() {
-    return this.state.manager == socket.id;
+    return this.state.manager === socket.id;
   }
 
   get isMyTurn() {
-    return this.state.turn == socket.id;
+    return this.state.turn === socket.id;
   }
 
   playerIndex(state, playerId) {
     return state.players.findIndex((candidate) => {
-      return candidate.id == playerId;
+      return candidate.id === playerId;
     });
   }
 
@@ -109,14 +109,14 @@ export default class Game extends Component {
     });
 
     socket.on('player_leave', (playerId, turn) => {
-      if (playerId == this.state.manager) {
+      if (playerId === this.state.manager) {
         this.setState({ redirect: true });
       }
       else {
         this.setState((prevState) => {
           let state = {
             players: prevState.players.filter((candidate) => {
-              return candidate.id != playerId;
+              return candidate.id !== playerId;
             }),
           };
 
@@ -274,7 +274,7 @@ export default class Game extends Component {
           <p><span>Distinct Card Pairs:</span> <span>{this.state.pairs}</span></p>
           {!this.state.playing &&
             <button onClick={this.toggleReady}>
-              {(this.state.playerStats[socket.id] != undefined && this.state.playerStats[socket.id].ready)
+              {(this.state.playerStats[socket.id] !== undefined && this.state.playerStats[socket.id].ready)
                 ? 'Unready'
                 : (this.isManager ? 'Start Game' : 'Ready')}
             </button>}
@@ -292,7 +292,7 @@ export default class Game extends Component {
                 <li key={player.id}>
                   <Player name={player.name} id={player.id} />
                   <ul>
-                    {this.state.playing || this.state.manager == player.id
+                    {this.state.playing || this.state.manager === player.id
                       ? <li>Room Manager</li>
                       : <li>{this.state.playerStats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
                     {this.state.playing &&

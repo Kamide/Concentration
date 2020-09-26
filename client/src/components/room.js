@@ -106,7 +106,7 @@ export default class Room extends Component {
 
     socket.emit('new_game', values);
     socket.on('new_game_status', (timestamp) => {
-      if (timestamp != null) {
+      if (timestamp !== null) {
         this.setState({ redirect: socket.id + '/' + timestamp });
       }
       else {

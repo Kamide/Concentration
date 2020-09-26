@@ -32,7 +32,7 @@ export default class Header extends Component {
   setPlayerName(event) {
     event.preventDefault();
 
-    if (this.state.name != event.target.playerName.value) {
+    if (this.state.name !== event.target.playerName.value) {
       socket.emit('update_player_name', event.target.playerName.value);
       localStorage.setItem('name', event.target.playerName.value);
       clearTimeout(this.state.timer);

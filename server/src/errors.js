@@ -4,7 +4,7 @@ module.exports = {
 };
 
 function emptyString(value) {
-  return value.trim() == '';
+  return value.trim() === '';
 }
 
 function outOfRange(value, min, max) {
