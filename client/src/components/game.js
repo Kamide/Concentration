@@ -50,12 +50,12 @@ export default class Game extends Component {
   }
 
   playerName(playerId) {
-    let index = this.playerIndex(this.state, playerId);
+    const index = this.playerIndex(this.state, playerId);
     return index > -1 ? this.state.players[index].name : playerId;
   }
 
   updatePlayer(prevState, playerId, key, value) {
-    let index = this.playerIndex(prevState, playerId)
+    const index = this.playerIndex(prevState, playerId)
 
     return {
       players: [
@@ -286,7 +286,7 @@ export default class Game extends Component {
           </h2>
           <ul>
             {this.state.players.map((player) => {
-              let id = <Id id={player.id} />;
+              const id = <Id id={player.id} />;
 
               return (
                 <li key={player.id}>

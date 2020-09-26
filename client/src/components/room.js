@@ -98,7 +98,7 @@ export default class Room extends Component {
 
   newRoom(event) {
     event.preventDefault();
-    let {formHasErrors, values} = this.validate(({field}) => event.target[field.args.id].value);
+    const {formHasErrors, values} = this.validate(({field}) => event.target[field.args.id].value);
 
     if (formHasErrors) {
       return;

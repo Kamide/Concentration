@@ -41,7 +41,7 @@ module.exports = function(io, socket, state, player) {
     let game = state.games[player.manager];
 
     if (player.isAManager) {
-      let deckImageSeed = game.start();
+      const deckImageSeed = game.start();
 
       if (!deckImageSeed) {
         return;

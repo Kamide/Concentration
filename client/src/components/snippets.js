@@ -20,7 +20,7 @@ export function Id(props) {
 }
 
 export function Player(props) {
-  let id = <Id id={props.id} />;
+  const id = <Id id={props.id} />;
 
   return (
     <span>

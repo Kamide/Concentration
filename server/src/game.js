@@ -7,7 +7,7 @@ function randomInteger(max, min = 0) {
 }
 
 function swap(cards, i, j) {
-  let temp = cards[i];
+  const temp = cards[i];
   cards[i] = cards[j];
   cards[j] = temp;
 }
@@ -63,7 +63,7 @@ module.exports = class Game {
   }
 
   get waiting() {
-    let readies = Object.values(this.playerStats).reduce((accumulator, playerStats) => {
+    const readies = Object.values(this.playerStats).reduce((accumulator, playerStats) => {
       return accumulator + (playerStats.ready ? 1 : 0);
     }, 0);
 
@@ -106,7 +106,7 @@ module.exports = class Game {
   }
 
   delete(player) {
-    let index = this.playerIndex(player);
+    const index = this.playerIndex(player);
 
     if (index > -1) {
       delete this.playerStats[player.id];

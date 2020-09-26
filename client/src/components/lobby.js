@@ -15,7 +15,7 @@ export default class Lobby extends Component {
 
   updatePlayerCount(gameId, value) {
     this.setState((prevState) => {
-      let index = prevState.games.findIndex((candidate) => {
+      const index = prevState.games.findIndex((candidate) => {
         return candidate.id === gameId;
       });
 
