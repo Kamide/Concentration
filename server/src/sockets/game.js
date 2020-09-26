@@ -9,10 +9,9 @@ module.exports = function(io, socket, state, player) {
     playerLimit = parseInt(playerLimit);
 
     if (Number.isNaN(pairs) || Number.isNaN(playerLimit) || emptyString(title) || outOfRange(pairs, 1, 52) || outOfRange(playerLimit, 1, 4)) {
-      state.io.to(socket.id).emit('new_game_status', null);
+      io.to(socket.id).emit('new_game_status', null);
       return;
     }
-
 
     state.newGame(socket, title, pairs, playerLimit);
   });
@@ -49,6 +48,7 @@ module.exports = function(io, socket, state, player) {
       }
 
       io.to(game.id).emit('start_game', deckImageSeed);
+      io.to(state.lobby).emit('delete_game_list_item', game.id);
     }
     else {
       if (game) {
