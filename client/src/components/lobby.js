@@ -9,8 +9,6 @@ export default class Lobby extends Component {
     this.state = {
       games: []
     }
-
-    this.updatePlayerCount = this.updatePlayerCount.bind(this);
   }
 
   updatePlayerCount(gameId, value) {

@@ -1,4 +1,4 @@
-const { emptyString, outOfRange } = require('../errors')
+const { emptyString, outOfRange } = require('../invalidators')
 const devlog = require('../devlog');
 
 module.exports = function(io, socket, state, player) {

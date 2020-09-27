@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import socket from './socket';
+import Chat from './chat'
 import Clipboard from './clipboard';
 import { Fraction, Id, Player } from './snippets';
 import './styles/game.css'
@@ -23,12 +24,11 @@ export default class Game extends Component {
       turn: '',
       prevCard: {},
       flush: false,
+      messages: [],
       redirect: ''
     };
 
     this.flipCard = this.flipCard.bind(this);
-    this.prevCardPush = this.prevCardPush.bind(this);
-    this.prevCardPop = this.prevCardPop.bind(this);
   }
 
   get id() {
@@ -41,6 +41,13 @@ export default class Game extends Component {
 
   get isMyTurn() {
     return this.state.turn === socket.id;
+  }
+
+  get playerNames() {
+    return this.state.players.reduce((names, player) => {
+      names[player.id] = player.name;
+      return names;
+    }, {});
   }
 
   playerIndex(state, playerId) {
@@ -322,6 +329,7 @@ export default class Game extends Component {
           <div className="table-top">
             {this.state.deck.map((card, deckIndex) => this.renderCard(card, deckIndex))}
           </div>}
+        <Chat names={this.playerNames} />
       </main>
     );
   }

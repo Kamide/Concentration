@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
     state.deletePlayer(player);
   });
 
-  require('./sockets/player')(io, socket);
+  require('./sockets/player')(io, socket, player);
   require('./sockets/lobby')(io, socket, state);
   require('./sockets/game')(io, socket, state, player);
 });
