@@ -35,6 +35,7 @@ export default class Chat extends Component {
     if (message && message !== this.state.previousMessageSent) {
       socket.emit('send_message', message);
       this.setState({ previousMessageSent: message });
+      event.target.chatMessage.value = '';
     }
   }
 
@@ -43,7 +44,7 @@ export default class Chat extends Component {
 
     return (
       <div>
-        <h2>Chat</h2>
+        <h2>Messages</h2>
         <form onSubmit={this.sendMessage}>
           <input type="text" id="chatMessage" />
           <input type="submit" value="Send" />

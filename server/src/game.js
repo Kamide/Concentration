@@ -26,7 +26,9 @@ module.exports = class Game {
     this.title = title;
 
     this.pairs = pairs;
+    this.pairsLeft = pairs;
     this.deck = [];
+    this.deckShown = [];
     this.imageSeed = '';
 
     this.playerLimit = playerLimit;
@@ -36,7 +38,6 @@ module.exports = class Game {
     this.playing = false;
     this.turnIndex = -1;
     this.flipsLeft = 2;
-    this.deckShown = [];
     this.prevDeckIndex = -1;
   }
 
@@ -50,6 +51,13 @@ module.exports = class Game {
 
   get playerInfo() {
     return this.players.map((player) => { return player.info; });
+  }
+
+  get defaultPlayerStats() {
+    return {
+      ready: false,
+      pairs: []
+    };
   }
 
   get publicInfo() {
@@ -74,6 +82,10 @@ module.exports = class Game {
     return this.players[this.turnIndex];
   }
 
+  get won() {
+    return this.pairsLeft < 1;
+  }
+
   playerIndex(player) {
     if (!(player instanceof Player)) {
       return -1;
@@ -91,10 +103,7 @@ module.exports = class Game {
     }
 
     this.players.push(player);
-    this.playerStats[player.id] = {
-      ready: false,
-      pairs: []
-    };
+    this.playerStats[player.id] = this.defaultPlayerStats;
     player.join(this.id);
     player.emit('player_join', player.info, this.playerStats[player.id]);
 
@@ -163,14 +172,14 @@ module.exports = class Game {
           this.deckShown[deckIndex] = this.deck[deckIndex];
           this.playerStats[player.id].pairs.push(this.deck[deckIndex]);
           status = 'commit';
+          this.pairsLeft -= 1;
         }
         else {
           status = 'flush';
         }
 
         this.incrementTurnIndex();
-        this.flipsLeft = 2;
-        this.prevDeckIndex = -1;
+        this.resetFlip();
       }
       else {
         this.prevDeckIndex = deckIndex;
@@ -180,11 +189,32 @@ module.exports = class Game {
         deckIndex: deckIndex,
         card: this.deck[deckIndex],
         turn: this.turn.id,
-        status: status
+        status: status,
+        won: this.won
       };
     }
 
     return null;
+  }
+
+  resetFlip() {
+    this.flipsLeft = 2;
+    this.prevDeckIndex = -1;
+  }
+
+  reset() {
+    this.pairsLeft = this.pairs;
+    this.deck = [];
+    this.deckShown = [];
+    this.imageSeed = '';
+
+    Object.keys(this.playerStats).forEach((playerId) => {
+      this.playerStats[playerId] = this.defaultPlayerStats;
+    });
+
+    this.playing = false;
+    this.turnIndex = -1;
+    this.resetFlip();
   }
 
   incrementTurnIndex() {

@@ -67,4 +67,14 @@ module.exports = function(io, socket, state, player) {
     let game = state.games[player.manager];
     io.to(game.id).emit('flip_card_status', game.flip(player, deckIndex));
   });
+
+  socket.on('reset_game', () => {
+    if (!player.game) {
+      return;
+    }
+
+    let game = state.games[player.manager];
+    game.reset();
+    io.to(game.id).emit('reset_game_success');
+  });
 };

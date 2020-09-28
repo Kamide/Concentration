@@ -24,6 +24,7 @@ export default class Game extends Component {
       turn: '',
       prevCard: {},
       flush: false,
+      won: false,
       messages: [],
       redirect: ''
     };
@@ -48,6 +49,13 @@ export default class Game extends Component {
       names[player.id] = player.name;
       return names;
     }, {});
+  }
+
+  get defaultPlayerStats() {
+    return {
+      ready: false,
+      pairs: []
+    };
   }
 
   playerIndex(state, playerId) {
@@ -172,8 +180,29 @@ export default class Game extends Component {
               this.setState({ flush: true });
           }
 
-          this.setState({ turn: result.turn });
+          this.setState({ turn: result.turn, won: result.won });
         }
+      });
+
+      socket.on('reset_game_success', () => {
+        this.setState((prevState) => {
+          return {
+            deck: [],
+            imageSeed: '',
+            images: [],
+            playerStats: Object.keys(prevState.playerStats).reduce((playerStats, playerId) => {
+              playerStats[playerId] = this.defaultPlayerStats;
+              return playerStats;
+            }, {}),
+            playing: false,
+            turn: '',
+            prevCard: {},
+            flush: false,
+            won: false
+          };
+        });
+
+        socket.off('flip_card_status');
       });
     });
   }
@@ -185,6 +214,8 @@ export default class Game extends Component {
     socket.off('update_player_name_success');
     socket.off('toggle_ready_status');
     socket.off('start_game');
+    socket.off('flip_card_status');
+    socket.off('reset_game_success');
     socket.emit('leave_game');
   }
 
@@ -265,6 +296,10 @@ export default class Game extends Component {
     );
   }
 
+  reset() {
+    socket.emit('reset_game');
+  }
+
   render() {
     if (this.state.redirect) {
       return <Redirect to='/lobby' />;
@@ -279,13 +314,24 @@ export default class Game extends Component {
           </div>
           <p><Id id={this.id} /> <Clipboard text={this.id} /></p>
           <p><span>Distinct Card Pairs:</span> <span>{this.state.pairs}</span></p>
-          {!this.state.playing &&
-            <button onClick={this.toggleReady}>
-              {(this.state.playerStats[socket.id] !== undefined && this.state.playerStats[socket.id].ready)
-                ? 'Unready'
-                : (this.isManager ? 'Start Game' : 'Ready')}
-            </button>}
+          {this.state.won && this.isManager && <button onClick={this.reset}>Reset Game</button> ||
+            !this.state.playing &&
+              <button onClick={this.toggleReady}>
+                {(this.state.playerStats[socket.id] !== undefined && this.state.playerStats[socket.id].ready)
+                  ? 'Unready'
+                  : (this.isManager ? 'Start Game' : 'Ready')}
+              </button>}
         </div>
+        {this.state.won && <p><strong>You win!</strong></p>
+          || (this.state.playing
+            ? this.isMyTurn
+              ? <p><strong>It is your turn to make a move...</strong></p>
+              : <p><em><Player name={this.playerName(this.state.turn)} id={this.state.turn} /> is making a move...</em></p>
+            : null)}
+        {this.state.playing &&
+          <div className="table-top">
+            {this.state.deck.map((card, deckIndex) => this.renderCard(card, deckIndex))}
+          </div>}
         <div>
           <h2>
             <span>Players:</span>{' '}
@@ -299,37 +345,27 @@ export default class Game extends Component {
                 <li key={player.id}>
                   <Player name={player.name} id={player.id} />
                   <ul>
-                    {this.state.playing || this.state.manager === player.id
+                    {this.state.manager === player.id
                       ? <li>Room Manager</li>
-                      : <li>{this.state.playerStats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
+                      : !this.state.playing && <li>{this.state.playerStats[player.id].ready ? 'Ready' : 'Not Ready'}</li>}
                     {this.state.playing &&
                       <li className="pairs">
                         <span>Pairs</span>
                         <ul>
                           {this.state.playerStats[player.id].pairs.length > 0
-                            ? this.state.playerStats[player.id].pairs.map((hand) => {
-                                return <li key={hand}>{this.renderCardImage(hand, 32, 32)}</li>;
+                            ? this.state.playerStats[player.id].pairs.map((pair) => {
+                                return <li key={pair}>{this.renderCardImage(pair, 32, 32)}</li>;
                               })
                             : <span>None</span>}
                         </ul>
-                      </li>
-                    }
+                      </li>}
                   </ul>
                 </li>
               );
             })}
           </ul>
+          <Chat names={this.playerNames} />
         </div>
-        {this.state.playing
-          ? this.isMyTurn
-            ? <p><strong>It is your turn to make a move...</strong></p>
-            : <p><em><Player name={this.playerName(this.state.turn)} id={this.state.turn} /> is making a move...</em></p>
-          : null}
-        {this.state.playing &&
-          <div className="table-top">
-            {this.state.deck.map((card, deckIndex) => this.renderCard(card, deckIndex))}
-          </div>}
-        <Chat names={this.playerNames} />
       </main>
     );
   }
