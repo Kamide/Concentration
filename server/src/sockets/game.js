@@ -76,5 +76,6 @@ module.exports = function(io, socket, state, player) {
     let game = state.games[player.manager];
     game.reset();
     io.to(game.id).emit('reset_game_success');
+    io.to(state.lobby).emit('new_game_list_item', game.publicInfo);
   });
 };
