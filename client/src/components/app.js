@@ -5,6 +5,8 @@ import Main from './main';
 import Lobby from './lobby';
 import Room from './room';
 import Game from './game';
+import './styles/app.css';
+import './styles/keyframes.css';
 
 export default class App extends Component {
   render() {

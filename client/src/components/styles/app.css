@@ -1,0 +1,276 @@
+:root {
+  --color-primary-200: hsl(16, 100%, 16%);
+  --color-primary-300: hsl(24, 100%, 32%);
+  --color-primary-400: hsl(32, 80%, 64%);
+  --color-primary-500: hsl(40, 80%, 94%);
+  --color-primary-600: hsl(48, 100%, 96%);
+  --color-primary-700: hsl(56, 100%, 98%);
+
+  --color-secondary-400: hsl(44, 90%, 64%);
+  --color-secondary-500: hsl(48, 80%, 80%);
+
+  --color-tertiary-400: hsl(272, 80%, 25%);
+  --color-tertiary-500: hsl(272, 80%, 50%);
+  --color-tertiary-600: hsl(280, 100%, 50%);
+  --color-tertiary-700: hsl(280, 80%, 64%);
+
+  --gradient-p4-s4-000: linear-gradient(to right, var(--color-primary-400), var(--color-secondary-400));
+  --gradient-p4-s4-270: linear-gradient(var(--color-primary-400), var(--color-secondary-400));
+  --gradient-t5-t7-000: linear-gradient(to right, var(--color-tertiary-500), var(--color-tertiary-700));
+  --gradient-t5-t7-270: linear-gradient(var(--color-tertiary-500), var(--color-tertiary-700));
+
+  --shadow-s4-1-4-1-4: 0 var(--spacing-1-4) var(--spacing-1-4) var(--color-secondary-400);
+  --shadow-s4-1-4-1-2: 0 var(--spacing-1-4) var(--spacing-1-2) var(--color-secondary-400);
+  --shadow-s4-1-4-1-1: 0 var(--spacing-1-4) var(--spacing-1-1) var(--color-secondary-400);
+  --shadow-s5-1-4-1-4: 0 var(--spacing-1-4) var(--spacing-1-4) var(--color-secondary-500);
+  --shadow-t5-1-4-1-4: 0 var(--spacing-1-4) var(--spacing-1-4) var(--color-tertiary-500);
+
+  --spacing-1-4: calc(var(--spacing-1-1) / 4);
+  --spacing-1-2: calc(var(--spacing-1-1) / 2);
+  --spacing-1-1: 16px;
+  --spacing-2-1: calc(var(--spacing-1-1) * 2);
+  --spacing-4-1: calc(var(--spacing-1-1) * 4);
+}
+
+html, body, h1, h2, ul, li, .section p {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  padding: var(--spacing-1-1);
+  background-color: var(--color-primary-500);
+  color: var(--color-primary-300);
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2 {
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  font-weight: 400;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+p, .section, header.secondary {
+  margin: var(--spacing-1-1) 0;
+}
+
+p {
+  line-height: 1.5;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: var(--color-tertiary-400);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-tertiary-600);
+}
+
+em {
+  font-style: italic;
+}
+
+strong, input, button {
+  font-weight: 700;
+}
+
+input, button {
+  padding: 0.5em;
+  border: thin solid var(--color-primary-400);
+  outline: 0;
+  background-color: var(--color-primary-700);
+  color: var(--color-primary-300);
+  font-size: 1em;
+  transition: transform 0.1s;
+}
+
+input:hover, button:hover, button:focus {
+  box-shadow: var(--shadow-s4-1-4-1-4);
+  transform: translateY(-2px);
+}
+
+input:focus, input[type=submit]:active, button:active {
+  box-shadow: var(--shadow-s4-1-4-1-2);
+  transform: translateY(-4px);
+}
+
+input[type=submit]:active, button:active {
+  background-color: var(--color-primary-400);
+  background: var(--gradient-p4-s4-270);
+}
+
+main form {
+  margin-bottom: var(--spacing-1-1);
+}
+
+main label, main input[type=submit] {
+  margin-top: var(--spacing-1-1);
+}
+
+main label {
+  display: block;
+  margin-bottom: var(--spacing-1-2);
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.section, .children-padding-1-2 > *, .children-padding-top-1-2 > *, .padding-1-2 {
+  padding-top: var(--spacing-1-2);
+}
+
+.section, .children-padding-1-2 > *, .padding-1-2 {
+  padding-bottom: var(--spacing-1-2);
+  padding-left: var(--spacing-1-2);
+  padding-right: var(--spacing-1-2);
+}
+
+.section, header.primary {
+  background-color: var(--color-primary-600);
+  box-shadow: var(--shadow-s5-1-4-1-4);
+}
+
+.flex-fill {
+  flex: 1;
+}
+
+[class*='flex-horizontal'] {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-horizontal-1-4 > *:not(:last-child) {
+  margin-right: var(--spacing-1-4);
+}
+
+.flex-horizontal-1-1 > *:not(:last-child) {
+  margin-right: var(--spacing-1-1);
+}
+
+.flex-horizontal-2-1 > *:not(:last-child) {
+  margin-right: var(--spacing-2-1);
+}
+
+.flex-horizontal-4-1 > *:not(:last-child) {
+  margin-right: var(--spacing-4-1);
+}
+
+.parallelogram {
+  position: relative;
+  z-index: 0;
+}
+
+.parallelogram::before {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: '';
+  background: var(--gradient-p4-s4-270);
+  transform: skewX(-15deg);
+  z-index: -1;
+}
+
+header.primary .parallelogram::before {
+  padding: 0 0.5em;
+  left: -0.5em;
+  transform-origin: 50% 1.5em;
+}
+
+header.primary {
+  overflow: hidden;
+}
+
+header.primary .heading {
+  font-size: 1.5em;
+}
+
+header.secondary > * {
+  padding: var(--spacing-1-1);
+}
+
+header.secondary .parallelogram {
+  display: inline-block;
+  padding-left: 0;
+}
+
+header.secondary .parallelogram::before {
+  padding-left: var(--spacing-4-1);
+  left: calc(-1 * var(--spacing-4-1));
+  background: var(--gradient-p4-s4-000);
+}
+
+header.secondary .parallelogram:nth-child(even), .tooltip {
+  color: var(--color-primary-700);
+}
+
+header.secondary .parallelogram:nth-child(even)::before {
+  background: var(--gradient-t5-t7-000);
+}
+
+.tooltip {
+  display: inline-block;
+  padding: 0.5em 1em;
+  position: absolute;
+  background: var(--gradient-t5-t7-270);
+  box-shadow: var(--shadow-t5-1-4-1-4);
+  z-index: 2;
+  transform: translate(-100%, 3em);
+  pointer-events: none;
+  user-select: none;
+}
+
+.tooltip::before {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: -0.5em;
+  right: 0;
+  content: '';
+  border-bottom: 0.5em solid var(--color-tertiary-500);
+  border-left: 0.5em solid transparent;
+  border-right: 0.5em solid transparent;
+}
+
+.fade-in, .fade-in-out {
+  animation-duration: 1500ms;
+  animation-iteration-count: 1;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.fade-in-out {
+  animation-name: fade-in-out;
+}
+
+.visually-hidden {
+  width: 0;
+  height: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}

@@ -1,0 +1,27 @@
+.fraction {
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+}
+
+.id {
+  font-family: 'Source Code Pro', monospace;
+}
+
+.player .tooltip {
+  display: none;
+  pointer-events: all;
+  user-select: initial;
+}
+
+.player:hover .tooltip {
+  display: inline-block;
+}
+
+.player .indicator {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.5em;
+  border-radius: 50%;
+  vertical-align: middle;
+  background-color: var(--color-primary-400);
+}

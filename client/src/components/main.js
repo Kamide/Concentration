@@ -4,7 +4,9 @@ export default class Main extends Component {
   render() {
     return (
       <main>
-        <h1>Concentration</h1>
+        <header className="secondary">
+          <h1 className="parallelogram">Concentration</h1>
+        </header>
       </main>
     );
   }

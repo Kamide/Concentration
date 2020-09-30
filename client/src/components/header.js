@@ -48,32 +48,40 @@ export default class Header extends Component {
 
   render() {
     return (
-      <header>
-        <div>
-          <h1><Link to='/'>Concentration</Link></h1>
-          <nav>
-            <ul>
-              <li><Link to='/lobby'>Lobby</Link></li>
-              <li><Link to='/room'>Create a Room</Link></li>
-            </ul>
-          </nav>
-        </div>
-        <div>
-          <h2>My Info</h2>
+      <header className="flex-horizontal-4-1 primary">
+        <div className="flex-fill flex-horizontal-1-1 children-padding-1-2">
+          <div aria-hidden="true" className="parallelogram">🤔</div>
           <div>
-            <span><Id id={this.state.id} /></span>{' '}
-            <Clipboard text={this.state.id} />
+            <h1 className="heading"><Link to='/'>Concentration</Link></h1>
+            <nav>
+              <ul className="flex-horizontal-1-1 children-padding-top-1-2 navbar">
+                <li><Link to='/lobby'>Lobby</Link></li>
+                <li><Link to='/room'>Create a Room</Link></li>
+              </ul>
+            </nav>
           </div>
-          <form onSubmit={this.setPlayerName}>
-            <div>
-              <label htmlFor="playerName">Name</label>{' '}
-              <input type="text" id="playerName" defaultValue={this.state.name} />
+        </div>
+        <div className="flex-horizontal-1-1 children-padding-1-2">
+          <div aria-hidden="true" className="parallelogram">💳</div>
+          <div>
+            <h2 className="heading">My Info</h2>
+            <div className="flex-horizontal-1-1 children-padding-top-1-2">
+              <div>
+                <Id id={this.state.id} />{' '}
+                <Clipboard text={this.state.id} />
+              </div>
+              <form className="flex-horizontal" onSubmit={this.setPlayerName}>
+                <div>
+                  <label htmlFor="playerName">Name</label>{' '}
+                  <input type="text" id="playerName" defaultValue={this.state.name} />{' '}
+                </div>
+                <div>
+                  <input type="submit" value="Change" />{' '}
+                  {this.state.timer > 0 && <span className="fade-in-out tooltip">Changed!</span>}
+                </div>
+              </form>
             </div>
-            <div>
-              <input type="submit" value="Change" />{' '}
-              {this.state.timer > 0 && <span>Changed!</span>}
-            </div>
-          </form>
+          </div>
         </div>
       </header>
     );

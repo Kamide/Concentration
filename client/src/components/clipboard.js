@@ -24,8 +24,8 @@ export default class Clipboard extends Component {
   render() {
     return (
       <span>
-        <button onClick={this.copy}>Copy to Clipboard</button>{' '}
-        {this.state.timer > 0 && <span>Copied!</span>}
+        <button aria-label="Copy to Clipboard" onClick={this.copy}>📋</button>{' '}
+        {this.state.timer > 0 && <span className="fade-in-out tooltip">Copied!</span>}
       </span>
     );
   }

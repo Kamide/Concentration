@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import socket from './socket'
 import { Player } from './snippets';
+import './styles/chat.css'
 
 export default class Chat extends Component {
   constructor(props) {
@@ -43,17 +44,21 @@ export default class Chat extends Component {
     const noMessages = <p><em>No messages yet. Start the conversation!</em></p>
 
     return (
-      <div>
+      <div className="chat section">
         <h2>Messages</h2>
-        <form onSubmit={this.sendMessage}>
-          <input type="text" id="chatMessage" />
+        <form className="flex-horizontal" onSubmit={this.sendMessage}>
+          <input className="flex-fill" type="text" id="chatMessage" placeholder="Type your message here..." />
           <input type="submit" value="Send" />
         </form>
         <div>
           {this.state.messages.length > 0
             ? this.state.messages.map((message, index) => {
                 return (
-                  <p key={index}><Player name={this.props.names[message.from]} id={message.from} />: {message.text}</p>
+                  <p className={message.from === socket.id ? 'chat-self' : ''} key={index}>
+                    <Player name={this.props.names[message.from]} id={message.from} />
+                    <span className="visually-hidden">: </span>
+                    <span className="chat-message">{message.text}</span>
+                  </p>
                 );
               })
             : noMessages}

@@ -84,20 +84,24 @@ export default class Lobby extends Component {
 
     return (
       <main>
-        <h1>Lobby</h1>
+        <header className="secondary">
+          <h1 className="parallelogram">Lobby</h1>
+        </header>
         {this.state.games.length > 0 && this.state.games.map((game) => {
           return (
-            <div key={game.id}>
-              <div>
-                <h2><Link to={'/game/' + game.id}>{game.title}</Link></h2>
-                <p><Id id={game.id} /></p>
+            <Link to={'/game/' + game.id} key={game.id}>
+              <div className="section" key={game.id}>
+                <header>
+                  <h2>{game.title}</h2>
+                  <p><Id id={game.id} /></p>
+                </header>
+                <p><span>Distinct Card Pairs:</span> <span>{game.pairs}</span></p>
+                <p>
+                  <span>Players:</span>{' '}
+                  <Fraction numerator={game.playerCount} denominator={game.playerLimit} />
+                </p>
               </div>
-              <p><span>Distinct Card Pairs:</span> <span>{game.pairs}</span></p>
-              <p>
-                <span>Players:</span>{' '}
-                <Fraction numerator={game.playerCount} denominator={game.playerLimit} />
-              </p>
-            </div>
+            </Link>
           );
         }) || noGames}
       </main>

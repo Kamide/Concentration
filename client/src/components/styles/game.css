@@ -1,18 +1,109 @@
-.pairs ul, .table-top * {
+#game {
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-areas:
+    'head'
+    'side'
+    'main';
+}
+
+#game-header {
+  grid-area: head;
+}
+
+#game-info p {
+  margin: var(--spacing-1-4) 0;
+}
+
+#game-info button, #game-info .tooltip {
+  margin-top: var(--spacing-1-2);
+}
+
+#game-sidebar {
+  grid-area: side;
+}
+
+#game-sidebar .tooltip {
+  transform: translate(-100%, -3em);
+}
+
+#game-sidebar .tooltip::before {
+  top: auto;
+  bottom: -1em;
+  right: 0;
+  border-top: 0.5em solid var(--color-tertiary-700);
+  border-bottom: 0.5em solid transparent;
+}
+
+#game-sidebar .chat-self .tooltip {
+  transform: translateY(-3em);
+}
+
+#game-sidebar .sticky, #game .alert-banner {
+  position: sticky;
+  top: var(--spacing-1-1);
+  z-index: 1;
+}
+
+#game .alert-banner {
+  margin-top: 0;
+}
+
+#game .alert-banner .tooltip {
+  transform: translate(-1em, 3em);
+}
+
+#game .alert-banner .tooltip::before {
+  left: 0;
+  right: auto;
+}
+
+.player-info.section {
+  margin: var(--spacing-1-4) 0;
+}
+
+.player-stats, .pairs {
   margin: 0;
   padding: 0;
 }
 
-.pairs > span::after {
-  content: ': ';
+.player-stats {
+  padding-left: 1.25em;
 }
 
-.pairs ul {
-  display: inline-flex;
-  list-style: none;
+.player-stats > li {
+  padding-left: 0.5em;
 }
 
-.table-top * {
+.player-stats li.manager {
+  list-style: '👑';
+}
+
+.player-stats li.ready {
+  list-style: '✅';
+}
+
+.player-stats li.not-ready {
+  list-style: '❌';
+}
+
+.pairs {
+  flex-wrap: wrap;
+  margin-left: 0.5em;
+  border-radius: var(--spacing-1-4);
+  box-shadow: var(--shadow-s4-1-4-1-2);
+  overflow: hidden;
+}
+
+.pairs img {
+  vertical-align: middle;
+}
+
+#game-main {
+  grid-area: main;
+}
+
+.table-top button {
   display: inline-block;
   vertical-align: middle;
 }
@@ -21,7 +112,34 @@
   width: 128px;
   height: 128px;
   position: relative;
-  border: thin solid rgba(0, 0, 0, 0.5);
+  margin-right: var(--spacing-1-1);
+  margin-bottom: var(--spacing-1-1);
+  padding: 0;
+  border-radius: var(--spacing-1-4);
   background-color: rgba(255, 255, 255, 0.5);
-  box-sizing: border-box;
+  box-shadow: var(--shadow-s4-1-4-1-4);
+  overflow: hidden;
+}
+
+.card:hover, .card:focus {
+  box-shadow: var(--shadow-s4-1-4-1-2);
+  transform: translateY(-4px);
+}
+
+.card:active {
+  box-shadow: var(--shadow-s4-1-4-1-1);
+  transform: translateY(-8px);
+}
+
+@media only screen and (min-width: 800px) {
+  #game {
+    grid-template-columns: auto 400px;
+    grid-template-areas:
+      'head side'
+      'main side';
+  }
+
+  #game .alert-banner {
+    margin-right: var(--spacing-1-1);
+  }
 }

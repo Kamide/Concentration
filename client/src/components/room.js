@@ -124,7 +124,9 @@ export default class Room extends Component {
 
     return (
       <main>
-        <h1>Create a Room</h1>
+        <header className="secondary">
+          <h1 className="parallelogram">Create a Room</h1>
+        </header>
         <form onSubmit={this.newRoom}>
           {Object.entries(this.state.fields).map(([key, field]) => {
             return (
