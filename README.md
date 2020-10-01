@@ -4,7 +4,15 @@
 
 ## Client
 
-To start the client, in the `./client` directory, run the following command:
+Switch to the `./client` directory.
+
+To use the default environment variables, run the following command:
+
+```
+cp .env.example .env
+```
+
+To start the client, run the following command:
 
 ```
 npm start
@@ -14,7 +22,15 @@ Then, you can visit <http://localhost:1234> in a browser.
 
 ## Server
 
-To start the server, in the `./server` directory, run the following command:
+Switch to the `./server` directory.
+
+To use the default environment variables, run the following command:
+
+```
+cp .env.example .env
+```
+
+To start the server, run the following command:
 
 ```
 npm start
