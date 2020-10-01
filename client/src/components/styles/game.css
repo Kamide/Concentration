@@ -1,6 +1,7 @@
 #game {
   display: grid;
   grid-template-columns: auto;
+  grid-template-rows: repeat(3, auto);
   grid-template-areas:
     'head'
     'side'
@@ -134,6 +135,7 @@
 @media only screen and (min-width: 800px) {
   #game {
     grid-template-columns: auto 400px;
+    grid-template-rows: auto 1fr;
     grid-template-areas:
       'head side'
       'main side';
