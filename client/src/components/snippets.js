@@ -13,7 +13,7 @@ export function Fraction(props) {
 
 export function Id(props) {
   return (
-    <span className="id">ID=<code>{props.id}</code></span>
+    <span className="id">ID: <code>{props.id}</code></span>
   );
 }
 

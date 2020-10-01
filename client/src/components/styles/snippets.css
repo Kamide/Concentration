@@ -2,8 +2,8 @@
   font-family: 'Yanone Kaffeesatz', sans-serif;
 }
 
-.id {
-  font-family: 'Source Code Pro', monospace;
+.id code {
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .player .tooltip {
