@@ -2,6 +2,8 @@
 
 **Concentration**, also known as **Memory**, is a card game. The objective is to find and match all card pairs. You can play by yourself or team up with friends!
 
+![Concentration Game Room Screenshot](src/screenshot.png)
+
 ## Client
 
 Switch to the `./client` directory.
